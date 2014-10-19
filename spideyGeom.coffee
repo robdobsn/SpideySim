@@ -1,6 +1,6 @@
 class @spideyGeom
 
-	ledInterval: 5
+	ledInterval: 7
 	steps: 0
 
 	padInfo: [
@@ -53,17 +53,12 @@ class @spideyGeom
 
 	init: ->
 
-		# transform = "matrix(1.25,0,0,-1.25,-100,700)"
+		@spideyAnim = new SpideyAnimation()
 
 		svg = d3.select("#spideyGeom svg");
 		pads = svg.selectAll("path");
 		pad_centers = pads[0].map( (d, i) ->
-		    # bbox = this.getBBox()
 		    bbox = d.getBBox()
-		    # console.log("totlen" + d.getTotalLength())
-		    # console.log(d.getPointAtLength(lng)) for lng in [0..d.getTotalLength()]
-		    # bbox = { left: 1, width: 22, top: 11, height: 3 }
-		    # console.log(bbox)
 		    return [bbox.x + bbox.width/2, bbox.y + bbox.height/2, i]
 		    )
 
@@ -79,28 +74,26 @@ class @spideyGeom
 			leds = []
 			pPos = pathStart
 			pDist = 0
+			padLedIdx = 0
 			while true
 				if pDist >= stripLen
 					break
-				leds.push { pt: d.getPointAtLength(pPos), clr: "white" }
+				leds.push { pt: d.getPointAtLength(pPos), padIdx: i, padLedIdx: padLedIdx, clr: "white" }
 				pDist += @ledInterval
 				pPos += intv
+				padLedIdx++
 				if wrapRound
 					if pPos > pathLen or pPos < 0
 						pPos = pPos + (if intv > 0 then -pathLen else pathLen)
 			return leds
 			)
 
-		# path.style("visibility", "hidden") for path in d3.selectAll("path")
-		# console.log(d3.selectAll("path").attr("d"))
-		# d3.selectAll("path").each( (d, i) -> console.log(d, i))
-		# d3.selectAll("path").style("visibility", "hidden")
-		# d3.selectAll("path").call( (sel) -> console.log(sel))
-		# d3.selectAll("path").data(data).each( (d, i) -> console.log(d, i))
+		ledCount = 0
+		for padLedsData in @ledsData
+			ledCount += padLedsData.length
+		console.log("Total Leds = " + ledCount)
 
-		# Show the led positions for each pad
-		# console.log(d3.selectAll("path").data(path_points))
-		# console.log(path_points)
+
 		@padLeds = svg.selectAll("g.padLeds")
 			.data(@ledsData)
 			.enter()
@@ -116,52 +109,8 @@ class @spideyGeom
 		 	.attr("class", "led")
 		 	.attr("cx", (d) -> return d.pt.x )
 		 	.attr("cy", (d) -> return d.pt.y )
-		 	.attr("r", 4)
+		 	.attr("r", 5)
 		 	.attr("fill", (d,i) -> return d.clr)
-
-
-		# .style("visibility", (d,i) -> 
-		# 		console.log(d)
-		# 		console.log(i)
-		# 		return "visible" 
-		# 		)
-
-		# console.log padLeds	
-			# .attr("cx", (d, i) -> 
-		 # 		console.log (i)
-		 # 		return d.x 
-		 # 		)
-		 # 	.attr("cy", (d) -> return d.y )
-		 # 	.attr("r", 3)
-		 # 	.attr("fill", "blue")
-
-		# pads
-		# 	.data( (d,i) -> console.log(i))
-		# svg
-		# 	.selectAll("circle")
-		# 	.data(path_points)
-		# 	.enter()
-		# 	.append("circle")
-		# 	.attr("class", "start_circle")
-		# 	.attr("cx", (d) -> 
-		# 		return d[0] 
-		# 		)
-		# 	.attr("cy", (d) -> return d[1] )
-		# 	.attr("r", 3)
-		# 	.attr("fill", "blue")
-
-		# svg
-		# 	.selectAll("ddd")
-		# 	.data(path_points)
-		# 	.enter()
-		# 	.append("circle")
-		# 	.attr("class", "next_circle")
-		# 	.attr("cx", (d) -> 
-		# 		return d[2] 
-		# 		)
-		# 	.attr("cy", (d) -> return d[3] )
-		# 	.attr("r", 3)
-		# 	.attr("fill", "green")
 
 		text = svg
 			.selectAll("text")
@@ -177,20 +126,8 @@ class @spideyGeom
 			.attr("font-size", "20px")
 			.attr("fill", "#DCDCDC")
 
-
 		d3.timer(@stepFn)
 
-
-			# .attr("transform", transform)
-
-		# d3.selectAll("path").call( (sel) -> 
-		# 	# console.log(s.attr('d')) for s in sel[0]
-		# 	# sel[0].each( (d,i) -> console.log("a"))
-		# 	s.style("visibility", "hidden") for s in sel[0]
-			
-		# 	)
-
-		# console.log(d3.select("#path3016").attr("d"))
 		return
 
 	stepFn: =>
@@ -198,16 +135,12 @@ class @spideyGeom
 		if @steps > 1000
 			return true
 
-
 		for padLedsData in @ledsData
-			clr = '#'+Math.random().toString(16).substr(-6)
+			# clr = '#'+Math.random().toString(16).substr(-6)
 			for ledData in padLedsData
-				ledData.clr = clr
+				ledData.clr = @spideyAnim.getColour(ledData.pt.x, ledData.pt.y, ledData.padIdx, ledData.padLedIdx, @steps)
 
 		@ledsSel.attr("fill", (d) -> return d.clr)
 
 		return false
 
-# runtest3 = () ->
-# 	spidey = new spideyGeom()
-# 	spidey.init()

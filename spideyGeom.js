@@ -7,7 +7,7 @@
       this.stepFn = __bind(this.stepFn, this);
     }
 
-    spideyGeom.prototype.ledInterval = 5;
+    spideyGeom.prototype.ledInterval = 7;
 
     spideyGeom.prototype.steps = 0;
 
@@ -331,7 +331,8 @@
     ];
 
     spideyGeom.prototype.init = function() {
-      var pad_centers, pads, svg, text;
+      var ledCount, padLedsData, pad_centers, pads, svg, text, _i, _len, _ref;
+      this.spideyAnim = new SpideyAnimation();
       svg = d3.select("#spideyGeom svg");
       pads = svg.selectAll("path");
       pad_centers = pads[0].map(function(d, i) {
@@ -341,7 +342,7 @@
       });
       this.ledsData = pads[0].map((function(_this) {
         return function(d, i) {
-          var intv, leds, pDist, pPos, pathLen, pathStart, stripLen, wrapRound;
+          var intv, leds, pDist, pPos, padLedIdx, pathLen, pathStart, stripLen, wrapRound;
           pathLen = d.getTotalLength();
           wrapRound = _this.padInfo[i].endPos === -1;
           stripLen = wrapRound ? pathLen : pathLen * (_this.padInfo[i].endPos - _this.padInfo[i].startPos);
@@ -354,16 +355,20 @@
           leds = [];
           pPos = pathStart;
           pDist = 0;
+          padLedIdx = 0;
           while (true) {
             if (pDist >= stripLen) {
               break;
             }
             leds.push({
               pt: d.getPointAtLength(pPos),
+              padIdx: i,
+              padLedIdx: padLedIdx,
               clr: "white"
             });
             pDist += _this.ledInterval;
             pPos += intv;
+            padLedIdx++;
             if (wrapRound) {
               if (pPos > pathLen || pPos < 0) {
                 pPos = pPos + (intv > 0 ? -pathLen : pathLen);
@@ -373,6 +378,13 @@
           return leds;
         };
       })(this));
+      ledCount = 0;
+      _ref = this.ledsData;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        padLedsData = _ref[_i];
+        ledCount += padLedsData.length;
+      }
+      console.log("Total Leds = " + ledCount);
       this.padLeds = svg.selectAll("g.padLeds").data(this.ledsData).enter().append("g").attr("class", "padLeds");
       this.ledsSel = this.padLeds.selectAll(".led").data(function(d, i) {
         return d;
@@ -381,7 +393,7 @@
         return d.pt.x;
       }).attr("cy", function(d) {
         return d.pt.y;
-      }).attr("r", 4).attr("fill", function(d, i) {
+      }).attr("r", 5).attr("fill", function(d, i) {
         return d.clr;
       });
       text = svg.selectAll("text").data(pad_centers).enter().append("text");
@@ -396,7 +408,7 @@
     };
 
     spideyGeom.prototype.stepFn = function() {
-      var clr, ledData, padLedsData, _i, _j, _len, _len1, _ref;
+      var ledData, padLedsData, _i, _j, _len, _len1, _ref;
       this.steps++;
       if (this.steps > 1000) {
         return true;
@@ -404,10 +416,9 @@
       _ref = this.ledsData;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         padLedsData = _ref[_i];
-        clr = '#' + Math.random().toString(16).substr(-6);
         for (_j = 0, _len1 = padLedsData.length; _j < _len1; _j++) {
           ledData = padLedsData[_j];
-          ledData.clr = clr;
+          ledData.clr = this.spideyAnim.getColour(ledData.pt.x, ledData.pt.y, ledData.padIdx, ledData.padLedIdx, this.steps);
         }
       }
       this.ledsSel.attr("fill", function(d) {
