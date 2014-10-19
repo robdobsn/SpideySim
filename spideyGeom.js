@@ -15,318 +15,318 @@
       {
         chainIdx: 0,
         stripIdx: 0,
-        startPos: 0.01,
-        endPos: 0.98,
+        startPos: 0,
+        endPos: -1,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
         startPos: 0.32,
         endPos: 0.99,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
-        startPos: 0.01,
-        endPos: 0.98,
+        startPos: 0,
+        endPos: -1,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
         startPos: 0.01,
         endPos: 0.7,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
-        startPos: 0.01,
-        endPos: 0.98,
+        startPos: 0,
+        endPos: -1,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
-        startPos: 0.01,
-        endPos: 0.98,
+        startPos: 0,
+        endPos: -1,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
-        startPos: 0.01,
-        endPos: 0.98,
+        startPos: 0,
+        endPos: -1,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
-        startPos: 0.01,
-        endPos: 0.98,
+        startPos: 0,
+        endPos: -1,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
-        startPos: 0.01,
-        endPos: 0.98,
+        startPos: 0,
+        endPos: -1,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
-        startPos: 0.01,
-        endPos: 0.98,
+        startPos: 0,
+        endPos: -1,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
-        startPos: 0.01,
-        endPos: 0.98,
+        startPos: 0,
+        endPos: -1,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
-        startPos: 0.01,
-        endPos: 0.98,
+        startPos: 0,
+        endPos: -1,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
-        startPos: 0.01,
-        endPos: 0.98,
+        startPos: 0,
+        endPos: -1,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
-        startPos: 0.01,
-        endPos: 0.98,
+        startPos: 0,
+        endPos: -1,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
-        startPos: 0.01,
-        endPos: 0.98,
+        startPos: 0,
+        endPos: -1,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
         startPos: 0.35,
         endPos: .98,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
-        startPos: 0.01,
-        endPos: 0.98,
+        startPos: 0,
+        endPos: -1,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
-        startPos: 0.01,
-        endPos: 0.98,
+        startPos: 0,
+        endPos: -1,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
-        startPos: 0.01,
-        endPos: 0.98,
+        startPos: 0,
+        endPos: -1,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
-        startPos: 0.01,
-        endPos: 0.98,
+        startPos: 0,
+        endPos: -1,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
-        startPos: 0.01,
-        endPos: 0.98,
+        startPos: 0,
+        endPos: -1,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
-        startPos: 0.01,
-        endPos: 0.98,
+        startPos: 0,
+        endPos: -1,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
         startPos: 0.2,
         endPos: 1.0,
         hiddenLeds: 5,
-        reversed: false
+        anticlockwise: false
       }, {
         chainIdx: 0,
         stripIdx: 0,
         startPos: 0.34,
         endPos: 0.99,
         hiddenLeds: 5,
-        reversed: false
+        anticlockwise: false
       }, {
         chainIdx: 0,
         stripIdx: 0,
-        startPos: 0.01,
-        endPos: 0.98,
+        startPos: 0,
+        endPos: -1,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
         startPos: 0.02,
         endPos: 0.49,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
         startPos: 0.27,
         endPos: 1.0,
         hiddenLeds: 5,
-        reversed: false
+        anticlockwise: false
       }, {
         chainIdx: 0,
         stripIdx: 0,
         startPos: 0.01,
         endPos: 0.69,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
         startPos: 0.01,
         endPos: 0.52,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
         startPos: 0.01,
         endPos: 0.62,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
         startPos: 0.02,
         endPos: 0.55,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
         startPos: 0.38,
         endPos: 0.99,
         hiddenLeds: 5,
-        reversed: false
+        anticlockwise: false
       }, {
         chainIdx: 0,
         stripIdx: 0,
         startPos: 0.33,
         endPos: 0.98,
         hiddenLeds: 5,
-        reversed: false
+        anticlockwise: false
       }, {
         chainIdx: 0,
         stripIdx: 0,
-        startPos: 0.01,
-        endPos: 0.98,
+        startPos: 0,
+        endPos: -1,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
         startPos: 0.37,
         endPos: 0.98,
         hiddenLeds: 5,
-        reversed: false
+        anticlockwise: false
       }, {
         chainIdx: 0,
         stripIdx: 0,
         startPos: 0.01,
         endPos: 0.7,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
-        startPos: 0.01,
-        endPos: 0.98,
+        startPos: 0,
+        endPos: -1,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
-        startPos: 0.01,
-        endPos: 0.98,
+        startPos: 0,
+        endPos: -1,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
         startPos: 0.01,
         endPos: 0.55,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
         startPos: 0.01,
         endPos: 0.68,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
-        startPos: 0.01,
-        endPos: 0.98,
+        startPos: 0,
+        endPos: -1,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
         startPos: 0.01,
         endPos: 0.7,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
         startPos: 0.01,
         endPos: 0.76,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
         startPos: 0.2,
         endPos: 0.67,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }, {
         chainIdx: 0,
         stripIdx: 0,
         startPos: 0.01,
         endPos: 0.65,
         hiddenLeds: 5,
-        reversed: true
+        anticlockwise: true
       }
     ];
 
@@ -341,28 +341,35 @@
       });
       this.ledsData = pads[0].map((function(_this) {
         return function(d, i) {
-          var intv, leds, pathEnd, pathLen, pathPos, pathStart;
+          var intv, leds, pDist, pPos, pathLen, pathStart, stripLen, wrapRound;
           pathLen = d.getTotalLength();
-          if (!_this.padInfo[i].reversed) {
-            intv = _this.ledInterval;
-            pathStart = pathLen * _this.padInfo[i].startPos;
-            pathEnd = pathLen * _this.padInfo[i].endPos;
-          } else {
+          wrapRound = _this.padInfo[i].endPos === -1;
+          stripLen = wrapRound ? pathLen : pathLen * (_this.padInfo[i].endPos - _this.padInfo[i].startPos);
+          intv = _this.ledInterval;
+          pathStart = pathLen * _this.padInfo[i].startPos;
+          if (_this.padInfo[i].anticlockwise) {
             intv = -_this.ledInterval;
             pathStart = pathLen * (1 - _this.padInfo[i].startPos);
-            pathEnd = pathLen * (1 - _this.padInfo[i].endPos);
           }
-          leds = (function() {
-            var _i, _results;
-            _results = [];
-            for (pathPos = _i = pathStart; intv > 0 ? _i <= pathEnd : _i >= pathEnd; pathPos = _i += intv) {
-              _results.push({
-                pt: d.getPointAtLength(pathPos),
-                clr: '#' + Math.random().toString(16).substr(-6)
-              });
+          leds = [];
+          pPos = pathStart;
+          pDist = 0;
+          while (true) {
+            if (pDist >= stripLen) {
+              break;
             }
-            return _results;
-          })();
+            leds.push({
+              pt: d.getPointAtLength(pPos),
+              clr: "white"
+            });
+            pDist += _this.ledInterval;
+            pPos += intv;
+            if (wrapRound) {
+              if (pPos > pathLen || pPos < 0) {
+                pPos = pPos + (intv > 0 ? -pathLen : pathLen);
+              }
+            }
+          }
           return leds;
         };
       })(this));
