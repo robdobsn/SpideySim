@@ -2,6 +2,7 @@ class @spideyGeom
 
 	ledInterval: 7
 	steps: 0
+	ledUISize: 3
 
 	padInfo: [
 		{ chainIdx: 0, stripIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #0
@@ -54,15 +55,17 @@ class @spideyGeom
 	init: ->
 
 		@spideyAnim = new SpideyAnimation()
+		@spideyGraph = new SpideyGraph()
 
 		svg = d3.select("#spideyGeom svg");
-		pads = svg.selectAll("path");
-		pad_centers = pads[0].map( (d, i) ->
+		@padOutlines = svg.selectAll("path");
+
+		pad_centers = @padOutlines[0].map( (d, i) ->
 		    bbox = d.getBBox()
 		    return [bbox.x + bbox.width/2, bbox.y + bbox.height/2, i]
 		    )
 
-		@ledsData = pads[0].map( (d, i) =>
+		@ledsData = @padOutlines[0].map( (d, i) =>
 			pathLen = d.getTotalLength()
 			wrapRound = @padInfo[i].endPos is -1
 			stripLen = if wrapRound then pathLen else pathLen * (@padInfo[i].endPos - @padInfo[i].startPos)
@@ -78,7 +81,7 @@ class @spideyGeom
 			while true
 				if pDist >= stripLen
 					break
-				leds.push { pt: d.getPointAtLength(pPos), padIdx: i, padLedIdx: padLedIdx, clr: "white" }
+				leds.push { pt: d.getPointAtLength(pPos), padIdx: i, padLedIdx: padLedIdx, clr: "#d4d4d4" }
 				pDist += @ledInterval
 				pPos += intv
 				padLedIdx++
@@ -92,7 +95,6 @@ class @spideyGeom
 		for padLedsData in @ledsData
 			ledCount += padLedsData.length
 		console.log("Total Leds = " + ledCount)
-
 
 		@padLeds = svg.selectAll("g.padLeds")
 			.data(@ledsData)
@@ -109,7 +111,7 @@ class @spideyGeom
 		 	.attr("class", "led")
 		 	.attr("cx", (d) -> return d.pt.x )
 		 	.attr("cy", (d) -> return d.pt.y )
-		 	.attr("r", 5)
+		 	.attr("r", @ledUISize)
 		 	.attr("fill", (d,i) -> return d.clr)
 
 		text = svg
@@ -126,7 +128,10 @@ class @spideyGeom
 			.attr("font-size", "20px")
 			.attr("fill", "#DCDCDC")
 
-		d3.timer(@stepFn)
+		@spideyGraph.createGraph(@padOutlines, @ledsData, svg)
+
+		# d3.timer(@stepFn)
+		@ledsSel.attr("fill", (d) -> return d.clr)
 
 		return
 

@@ -11,6 +11,8 @@
 
     spideyGeom.prototype.steps = 0;
 
+    spideyGeom.prototype.ledUISize = 3;
+
     spideyGeom.prototype.padInfo = [
       {
         chainIdx: 0,
@@ -331,16 +333,17 @@
     ];
 
     spideyGeom.prototype.init = function() {
-      var ledCount, padLedsData, pad_centers, pads, svg, text, _i, _len, _ref;
+      var ledCount, padLedsData, pad_centers, svg, text, _i, _len, _ref;
       this.spideyAnim = new SpideyAnimation();
+      this.spideyGraph = new SpideyGraph();
       svg = d3.select("#spideyGeom svg");
-      pads = svg.selectAll("path");
-      pad_centers = pads[0].map(function(d, i) {
+      this.padOutlines = svg.selectAll("path");
+      pad_centers = this.padOutlines[0].map(function(d, i) {
         var bbox;
         bbox = d.getBBox();
         return [bbox.x + bbox.width / 2, bbox.y + bbox.height / 2, i];
       });
-      this.ledsData = pads[0].map((function(_this) {
+      this.ledsData = this.padOutlines[0].map((function(_this) {
         return function(d, i) {
           var intv, leds, pDist, pPos, padLedIdx, pathLen, pathStart, stripLen, wrapRound;
           pathLen = d.getTotalLength();
@@ -364,7 +367,7 @@
               pt: d.getPointAtLength(pPos),
               padIdx: i,
               padLedIdx: padLedIdx,
-              clr: "white"
+              clr: "#d4d4d4"
             });
             pDist += _this.ledInterval;
             pPos += intv;
@@ -393,7 +396,7 @@
         return d.pt.x;
       }).attr("cy", function(d) {
         return d.pt.y;
-      }).attr("r", 5).attr("fill", function(d, i) {
+      }).attr("r", this.ledUISize).attr("fill", function(d, i) {
         return d.clr;
       });
       text = svg.selectAll("text").data(pad_centers).enter().append("text");
@@ -404,7 +407,10 @@
       }).text(function(d) {
         return d[2];
       }).attr("font-family", "sans-serif").attr("font-size", "20px").attr("fill", "#DCDCDC");
-      d3.timer(this.stepFn);
+      this.spideyGraph.createGraph(this.padOutlines, this.ledsData, svg);
+      this.ledsSel.attr("fill", function(d) {
+        return d.clr;
+      });
     };
 
     spideyGeom.prototype.stepFn = function() {
