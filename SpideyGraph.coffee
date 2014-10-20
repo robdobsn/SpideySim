@@ -59,7 +59,9 @@ class @SpideyGraph
 		for padAdjList,padIdx in @padAdjacencies
 			for ledInfo,ledIdx in padLedsData[padIdx]
 				ledAdjList = []
-				ledUniqPads = 0
+				ledUniqPads = []
+				# Go around adjacent pads checking for leds within a specific
+				# distance of the currently checked led to identify a node
 				for otherPadIdx in padAdjList
 					ledPadFound = false
 					for otherLedInfo,otherLedIdx in padLedsData[otherPadIdx]
@@ -68,10 +70,13 @@ class @SpideyGraph
 								ledAdjList.push [padIdx, ledIdx]
 							ledAdjList.push [otherPadIdx, otherLedIdx]
 							if not ledPadFound
-								ledUniqPads++
+								if otherPadIdx not in ledUniqPads
+									ledUniqPads.push otherPadIdx
 								ledPadFound = true
 							# console.log "Found " + padIdx + "." + ledIdx + " close to " + otherPadIdx + "." + otherLedIdx
-				if ledUniqPads >= 2
+				# It's only a node if there are leds clustered together on
+				# more than 2 pads 
+				if ledUniqPads.length >= 2
 					nodeAlreadyInList = false
 					for nodeLeds in nodeLedList
 						for led in nodeLeds
@@ -83,6 +88,10 @@ class @SpideyGraph
 							break
 					if not nodeAlreadyInList
 						nodeLedList.push ledAdjList
+						if padIdx is 9
+							for led in ledAdjList
+								console.log led
+							console.log("")
 						# console.log "Node at " + padIdx + ", " + ledIdx + " adj " + ledAdjList.length
 				else
 					if ledIdx == 0 or ledIdx == padLedsData[padIdx].length-1

@@ -54,7 +54,7 @@
     };
 
     SpideyGraph.prototype.createGraph = function(padOutlines, padLedsData, ledsSel, svg) {
-      var adjFound, alreadInList, colrIdx, colrs, curCofG, curEdgeIdx, discardFree, edgeInfo, edgesSvg, freeLedList, freeLeds, freeNodeLeds, freeRationalisedList, fromNode, fullNode, fullNodeList, key, led, ledAdjList, ledIdx, ledInfo, ledPadFound, ledUniqPads, listMerged, nodeAlreadyInList, nodeLed, nodeLedList, nodeLeds, nodeLedsIdx, nodeRationalisedList, nodesSvg, otherLedIdx, otherLedInfo, otherNodeLed, otherNodeLedsIdx, otherPadIdx, otherPadLedsInfo, padAdjList, padIdx, padLedsInfo, testNode, testNodeIdx, testNodeLeds, thisNode, val, _aa, _ab, _ac, _ad, _ae, _i, _j, _k, _l, _len, _len1, _len10, _len11, _len12, _len13, _len14, _len15, _len16, _len17, _len18, _len19, _len2, _len20, _len3, _len4, _len5, _len6, _len7, _len8, _len9, _m, _n, _o, _p, _q, _r, _ref, _ref1, _ref10, _ref11, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9, _s, _t, _u, _v, _w, _x, _y, _z;
+      var adjFound, alreadInList, colrIdx, colrs, curCofG, curEdgeIdx, discardFree, edgeInfo, edgesSvg, freeLedList, freeLeds, freeNodeLeds, freeRationalisedList, fromNode, fullNode, fullNodeList, key, led, ledAdjList, ledIdx, ledInfo, ledPadFound, ledUniqPads, listMerged, nodeAlreadyInList, nodeLed, nodeLedList, nodeLeds, nodeLedsIdx, nodeRationalisedList, nodesSvg, otherLedIdx, otherLedInfo, otherNodeLed, otherNodeLedsIdx, otherPadIdx, otherPadLedsInfo, padAdjList, padIdx, padLedsInfo, testNode, testNodeIdx, testNodeLeds, thisNode, val, _aa, _ab, _ac, _ad, _ae, _af, _i, _j, _k, _l, _len, _len1, _len10, _len11, _len12, _len13, _len14, _len15, _len16, _len17, _len18, _len19, _len2, _len20, _len21, _len3, _len4, _len5, _len6, _len7, _len8, _len9, _m, _n, _o, _p, _q, _r, _ref, _ref1, _ref10, _ref11, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9, _s, _t, _u, _v, _w, _x, _y, _z;
       this.padLedsData = padLedsData;
       this.ledsSel = ledsSel;
       for (padIdx = _i = 0, _len = padLedsData.length; _i < _len; padIdx = ++_i) {
@@ -97,7 +97,7 @@
         for (ledIdx = _n = 0, _len4 = _ref2.length; _n < _len4; ledIdx = ++_n) {
           ledInfo = _ref2[ledIdx];
           ledAdjList = [];
-          ledUniqPads = 0;
+          ledUniqPads = [];
           for (_o = 0, _len5 = padAdjList.length; _o < _len5; _o++) {
             otherPadIdx = padAdjList[_o];
             ledPadFound = false;
@@ -110,13 +110,15 @@
                 }
                 ledAdjList.push([otherPadIdx, otherLedIdx]);
                 if (!ledPadFound) {
-                  ledUniqPads++;
+                  if (__indexOf.call(ledUniqPads, otherPadIdx) < 0) {
+                    ledUniqPads.push(otherPadIdx);
+                  }
                   ledPadFound = true;
                 }
               }
             }
           }
-          if (ledUniqPads >= 2) {
+          if (ledUniqPads.length >= 2) {
             nodeAlreadyInList = false;
             for (_q = 0, _len7 = nodeLedList.length; _q < _len7; _q++) {
               nodeLeds = nodeLedList[_q];
@@ -135,6 +137,13 @@
             }
             if (!nodeAlreadyInList) {
               nodeLedList.push(ledAdjList);
+              if (padIdx === 9) {
+                for (_s = 0, _len9 = ledAdjList.length; _s < _len9; _s++) {
+                  led = ledAdjList[_s];
+                  console.log(led);
+                }
+                console.log("");
+              }
             }
           } else {
             if (ledIdx === 0 || ledIdx === padLedsData[padIdx].length - 1) {
@@ -144,18 +153,18 @@
         }
       }
       nodeRationalisedList = [];
-      for (nodeLedsIdx = _s = 0, _len9 = nodeLedList.length; _s < _len9; nodeLedsIdx = ++_s) {
+      for (nodeLedsIdx = _t = 0, _len10 = nodeLedList.length; _t < _len10; nodeLedsIdx = ++_t) {
         nodeLeds = nodeLedList[nodeLedsIdx];
         curCofG = this.getCofGforLeds(padLedsData, nodeLeds);
-        for (otherNodeLedsIdx = _t = _ref4 = nodeLedsIdx + 1, _ref5 = nodeLedList.length; _ref4 <= _ref5 ? _t < _ref5 : _t > _ref5; otherNodeLedsIdx = _ref4 <= _ref5 ? ++_t : --_t) {
+        for (otherNodeLedsIdx = _u = _ref4 = nodeLedsIdx + 1, _ref5 = nodeLedList.length; _ref4 <= _ref5 ? _u < _ref5 : _u > _ref5; otherNodeLedsIdx = _ref4 <= _ref5 ? ++_u : --_u) {
           listMerged = false;
           if (this.dist(curCofG, this.getCofGforLeds(padLedsData, nodeLedList[otherNodeLedsIdx])) < this.maxDistForNodeMerge) {
-            for (_u = 0, _len10 = nodeLeds.length; _u < _len10; _u++) {
-              nodeLed = nodeLeds[_u];
+            for (_v = 0, _len11 = nodeLeds.length; _v < _len11; _v++) {
+              nodeLed = nodeLeds[_v];
               alreadInList = false;
               _ref6 = nodeLedList[otherNodeLedsIdx];
-              for (_v = 0, _len11 = _ref6.length; _v < _len11; _v++) {
-                otherNodeLed = _ref6[_v];
+              for (_w = 0, _len12 = _ref6.length; _w < _len12; _w++) {
+                otherNodeLed = _ref6[_w];
                 if (nodeLed[0] === otherNodeLed[0] && nodeLed[1] === otherNodeLed[1]) {
                   alreadInList = true;
                 }
@@ -177,19 +186,19 @@
         }
       }
       freeRationalisedList = [];
-      for (nodeLedsIdx = _w = 0, _len12 = freeLedList.length; _w < _len12; nodeLedsIdx = ++_w) {
+      for (nodeLedsIdx = _x = 0, _len13 = freeLedList.length; _x < _len13; nodeLedsIdx = ++_x) {
         freeNodeLeds = freeLedList[nodeLedsIdx];
         curCofG = this.getCofGforLeds(padLedsData, freeNodeLeds);
         discardFree = false;
-        for (_x = 0, _len13 = nodeRationalisedList.length; _x < _len13; _x++) {
-          nodeLeds = nodeRationalisedList[_x];
+        for (_y = 0, _len14 = nodeRationalisedList.length; _y < _len14; _y++) {
+          nodeLeds = nodeRationalisedList[_y];
           if (this.dist(curCofG, this.getCofGforLeds(padLedsData, nodeLeds.leds)) < this.maxDistForNodeMerge) {
             discardFree = true;
             break;
           }
         }
-        for (_y = 0, _len14 = freeRationalisedList.length; _y < _len14; _y++) {
-          freeLeds = freeRationalisedList[_y];
+        for (_z = 0, _len15 = freeRationalisedList.length; _z < _len15; _z++) {
+          freeLeds = freeRationalisedList[_z];
           if (this.dist(curCofG, this.getCofGforLeds(padLedsData, freeLeds.leds)) < this.maxDistForNodeMerge) {
             discardFree = true;
             break;
@@ -208,23 +217,23 @@
       console.log("FreeNodeList " + freeRationalisedList.length);
       console.log("FullNodeList " + fullNodeList.length);
       this.edgeList = [];
-      for (_z = 0, _len15 = fullNodeList.length; _z < _len15; _z++) {
-        fullNode = fullNodeList[_z];
+      for (_aa = 0, _len16 = fullNodeList.length; _aa < _len16; _aa++) {
+        fullNode = fullNodeList[_aa];
         fullNode.edgesTo = [];
       }
       _ref7 = this.padAdjacencies;
-      for (padIdx = _aa = 0, _len16 = _ref7.length; _aa < _len16; padIdx = ++_aa) {
+      for (padIdx = _ab = 0, _len17 = _ref7.length; _ab < _len17; padIdx = ++_ab) {
         padAdjList = _ref7[padIdx];
         fromNode = null;
         _ref8 = padLedsData[padIdx];
-        for (ledIdx = _ab = 0, _len17 = _ref8.length; _ab < _len17; ledIdx = ++_ab) {
+        for (ledIdx = _ac = 0, _len18 = _ref8.length; _ac < _len18; ledIdx = ++_ac) {
           ledInfo = _ref8[ledIdx];
           thisNode = null;
-          for (testNodeIdx = _ac = 0, _len18 = fullNodeList.length; _ac < _len18; testNodeIdx = ++_ac) {
+          for (testNodeIdx = _ad = 0, _len19 = fullNodeList.length; _ad < _len19; testNodeIdx = ++_ad) {
             testNode = fullNodeList[testNodeIdx];
             _ref9 = testNode.leds;
-            for (_ad = 0, _len19 = _ref9.length; _ad < _len19; _ad++) {
-              testNodeLeds = _ref9[_ad];
+            for (_ae = 0, _len20 = _ref9.length; _ae < _len20; _ae++) {
+              testNodeLeds = _ref9[_ae];
               if (testNodeLeds[0] === padIdx && testNodeLeds[1] === ledIdx) {
                 thisNode = {
                   nodeIdx: testNodeIdx,
@@ -275,8 +284,8 @@
       colrs = this.genColours(fullNodeList.length);
       colrIdx = 0;
       console.log("NumNodes = " + fullNodeList.length);
-      for (_ae = 0, _len20 = fullNodeList.length; _ae < _len20; _ae++) {
-        nodeLeds = fullNodeList[_ae];
+      for (_af = 0, _len21 = fullNodeList.length; _af < _len21; _af++) {
+        nodeLeds = fullNodeList[_af];
         nodeLeds.colr = colrs[colrIdx++];
       }
       nodesSvg = svg.selectAll("g.nodes").data(fullNodeList).enter().append("g").attr("class", "nodes").append("circle").attr("class", "node").attr("cx", function(d) {
