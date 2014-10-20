@@ -407,7 +407,7 @@
       }).text(function(d) {
         return d[2];
       }).attr("font-family", "sans-serif").attr("font-size", "20px").attr("fill", "#DCDCDC");
-      this.spideyGraph.createGraph(this.padOutlines, this.ledsData, svg);
+      this.spideyGraph.createGraph(this.padOutlines, this.ledsData, this.ledsSel, svg);
       this.ledsSel.attr("fill", function(d) {
         return d.clr;
       });

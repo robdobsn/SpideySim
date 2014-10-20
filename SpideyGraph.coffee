@@ -28,7 +28,7 @@ class @SpideyGraph
 			ySum += padLedsData[ledId[0]][ledId[1]].pt.y
 		return {pt: { x: xSum/ledList.length, y: ySum/ledList.length } }
 
-	createGraph: (padOutlines, padLedsData, svg) ->
+	createGraph: (padOutlines, @padLedsData, @ledsSel, svg) ->
 
 		# Find pad adjacencies
 		for padLedsInfo, padIdx in padLedsData
@@ -139,42 +139,63 @@ class @SpideyGraph
 		# 	console.log oStr
 
 		# Build the graph
+		@edgeList = []
 		for fullNode in fullNodeList
 			fullNode.edgesTo = []
 		for padAdjList,padIdx in @padAdjacencies
-			fromNode = -1
+			fromNode = null
 			for ledInfo,ledIdx in padLedsData[padIdx]
 				# Find if this led belogs to any node
-				thisNode = -1
+				thisNode = null
 				for testNode, testNodeIdx in fullNodeList
 					for testNodeLeds in testNode.leds
 						if testNodeLeds[0] is padIdx and testNodeLeds[1] is ledIdx
-							thisNode = testNodeIdx
+							thisNode = 
+								nodeIdx: testNodeIdx
+								padIdx: padIdx
+								ledIdx: ledIdx
 							break
-					if thisNode isnt -1
+					if thisNode?
 						break
-				if fromNode isnt -1 and thisNode isnt -1 and thisNode isnt fromNode
+				if fromNode? and thisNode? and thisNode.nodeIdx isnt fromNode.nodeIdx
 					# console.log "fromNode " + fromNode + " thisNode " + thisNode
-					if thisNode not in fullNodeList[fromNode].edgesTo
-						fullNodeList[fromNode].edgesTo.push thisNode
-					if fromNode not in fullNodeList[thisNode].edgesTo
-						fullNodeList[thisNode].edgesTo.push fromNode
-				if thisNode isnt -1
+					curEdgeIdx = @edgeList.length
+					if thisNode.nodeIdx not in fullNodeList[fromNode.nodeIdx].edgesTo
+						fullNodeList[fromNode.nodeIdx].edgesTo.push
+						 	toNodeIdx: thisNode.nodeIdx
+						 	edgeIdx: curEdgeIdx
+						edgeInfo = 
+							padIdx: padIdx
+							fromNodeIdx: fromNode.nodeIdx
+							fromNode: fullNodeList[fromNode.nodeIdx]
+							fromLedIdx: fromNode.ledIdx
+							toNodeIdx: thisNode.nodeIdx
+							toNode: fullNodeList[thisNode.nodeIdx]
+							toLedIdx: thisNode.ledIdx
+						@edgeList.push edgeInfo
+					if fromNode.nodeIdx not in fullNodeList[thisNode.nodeIdx].edgesTo
+						fullNodeList[thisNode.nodeIdx].edgesTo.push
+						 	toNodeIdx: fromNode.nodeIdx
+						 	edgeIdx: curEdgeIdx
+
+				if thisNode?
 					# console.log "At node " + thisNode + " fromNode=" + fromNode
-					fromNode = thisNode
+					fromNode = {}
+					for key, val of thisNode
+						fromNode[key] = val
 
 		# Edge list
-		edgeList = []
-		for node, nodeIdx in fullNodeList
-			for edgesTo in node.edgesTo
-				edgeList.push { from: { nodeIdx: nodeIdx, pt: node.CofG.pt }, to: { nodeIdx: edgesTo, pt: fullNodeList[edgesTo].CofG.pt }}
+		# edgeList = []
+		# for node, nodeIdx in fullNodeList
+		# 	for edgesTo in node.edgesTo
+		# 		edgeList.push { from: { nodeIdx: nodeIdx, pt: node.CofG.pt }, to: { nodeIdx: edgesTo, pt: fullNodeList[edgesTo].CofG.pt }}
 
 		colrs = @genColours(fullNodeList.length)
 		colrIdx = 0
 		console.log "NumNodes = " + fullNodeList.length
 		for nodeLeds in fullNodeList
 			nodeLeds.colr = colrs[colrIdx++]
-		fullNodeList[0].colr = "#000000"
+		# fullNodeList[0].colr = "#000000"
 		# for nodeLeds in nodeRationalisedList
 		# 	colr = colrs[colrIdx++]
 		# 	for nodeLed in nodeLeds.leds
@@ -197,20 +218,45 @@ class @SpideyGraph
 		# 	for ed in nod.edgesTo
 		# 		nodStr += ed + ", "
 		# 	console.log nodStr
-		for edge in edgeList
-			console.log "edge from " + edge.from.nodeIdx + ", to " + edge.to.nodeIdx
+		# for edge in @edgeList
+		# 	console.log "edge from " + edge.fromNode.nodeIdx + ", to " + edge.toNode.nodeIdx
 
 		edgesSvg = svg.selectAll("g.edges")
-			.data(edgeList)
+			.data(@edgeList)
 			.enter()
 			.append("g")
 			.attr("class","edges")
 			.append("line")
 		 	.attr("class", "edge")
-		 	.attr("x1", (d) -> 
-		 		console.log d
-		 		return d.from.pt.x )
-		 	.attr("y1", (d) -> return d.from.pt.y )
-		 	.attr("x2", (d) -> return d.to.pt.x )
-		 	.attr("y2", (d) -> return d.to.pt.y )
+		 	.attr("x1", (d) -> return d.fromNode.CofG.pt.x )
+		 	.attr("y1", (d) -> return d.fromNode.CofG.pt.y )
+		 	.attr("x2", (d) -> return d.toNode.CofG.pt.x )
+		 	.attr("y2", (d) -> return d.toNode.CofG.pt.y )
 		 	.attr("stroke", (d,i) -> return 'black')
+
+		@animEdgeIdx = 0
+		@steps = 0
+		d3.timer(@stepFn)
+
+
+	stepFn: =>
+
+		if @steps == 0
+			if @animEdgeIdx > 0
+				edge = @edgeList[@animEdgeIdx-1]
+				for ledIdx in [edge.fromLedIdx..edge.toLedIdx]
+					@padLedsData[edge.padIdx][ledIdx].clr = "#dcdcdc"
+			edge = @edgeList[@animEdgeIdx]
+			for ledIdx in [edge.fromLedIdx..edge.toLedIdx]
+				@padLedsData[edge.padIdx][ledIdx].clr = "#000000"
+	 
+			@ledsSel.attr("fill", (d) -> return d.clr)
+
+		@steps++
+		if @steps > 10
+			@animEdgeIdx++
+			@steps = 0
+			if @animEdgeIdx >= @edgeList.length
+				return true
+
+		return false

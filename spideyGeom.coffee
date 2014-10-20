@@ -128,7 +128,7 @@ class @spideyGeom
 			.attr("font-size", "20px")
 			.attr("fill", "#DCDCDC")
 
-		@spideyGraph.createGraph(@padOutlines, @ledsData, svg)
+		@spideyGraph.createGraph(@padOutlines, @ledsData, @ledsSel, svg)
 
 		# d3.timer(@stepFn)
 		@ledsSel.attr("fill", (d) -> return d.clr)
