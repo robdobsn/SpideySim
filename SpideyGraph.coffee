@@ -3,8 +3,9 @@ class @SpideyGraph
 	padAdjacencies: []
 	maxDistForPadAdjacency: 300
 	maxDistForLedAdjacency: 10
-	maxDistForNodeDetect: 11
+	maxDistForNodeDetect: 10
 	maxDistForNodeMerge: 10
+	minDistForEndNode: 20
 
 	genColours: (numColours) ->
 		# assumes hue [0, 360), saturation [0, 100), lightness [0, 100)
@@ -97,29 +98,6 @@ class @SpideyGraph
 					if ledIdx == 0 or ledIdx == padLedsData[padIdx].length-1
 					 	freeLedList.push ledAdjList
 
-		# Remove duplicated leds from the same pad from nodes
-
-		for nodeLeds, nodeLedsIdx in nodeLedList
-			ledDistances = {}
-			curCofG = @getCofGforLeds(nodeLeds)
-			for nodeLed in nodeLeds
-				distFromCofGtoLed = @dist(curCofG, @padLedsData[nodeLed[0]][nodeLed[1]])
-				if nodeLed[0] of ledDistances
-					if ledDistances[nodeLed[0]].dist > distFromCofGtoLed
-						ledDistances[nodeLed[0]].dist = distFromCofGtoLed
-						ledDistances[nodeLed[0]].padIdx = nodeLed[0]
-						ledDistances[nodeLed[0]].ledIdx = nodeLed[1]						
-				else
-					ledDistances[nodeLed[0]] =
-						dist: distFromCofGtoLed
-						padIdx: nodeLed[0]
-						ledIdx: nodeLed[1]
-			nodeLeds = []
-			for key,val of ledDistances
-				nodeLeds.push [val.padIdx, val.ledIdx]
-				console.log val.padIdx, val.ledIdx
-			console.log("")
-
 		# Rationalise node list
 		nodeRationalisedList = []
 		for nodeLeds, nodeLedsIdx in nodeLedList
@@ -140,21 +118,51 @@ class @SpideyGraph
 			if not listMerged
 				nodeRationalisedList.push { leds: nodeLeds, CofG: @getCofGforLeds(nodeLeds), nodeDegree: 2 }
 
+		# Remove duplicated leds from the same pad from nodes
+		for nodeLeds, nodeLedsIdx in nodeRationalisedList
+			ledDistances = {}
+			curCofG = nodeLeds.CofG
+			for nodeLed in nodeLeds.leds
+				distFromCofGtoLed = @dist(curCofG, @padLedsData[nodeLed[0]][nodeLed[1]])
+				console.log distFromCofGtoLed
+				if nodeLed[0] of ledDistances
+					if ledDistances[nodeLed[0]].dist > distFromCofGtoLed
+						ledDistances[nodeLed[0]].dist = distFromCofGtoLed
+						ledDistances[nodeLed[0]].padIdx = nodeLed[0]
+						ledDistances[nodeLed[0]].ledIdx = nodeLed[1]						
+				else
+					ledDistances[nodeLed[0]] =
+						dist: distFromCofGtoLed
+						padIdx: nodeLed[0]
+						ledIdx: nodeLed[1]
+			nodeLeds.leds = []
+			for key,val of ledDistances
+				nodeLeds.leds.push [val.padIdx, val.ledIdx]
+				console.log val.padIdx, val.ledIdx
+			nodeLeds.CofG = @getCofGforLeds(nodeLeds.leds)
+			console.log("")
+
 		# Rationalise the free nodes
 		freeRationalisedList = []
 		for freeNodeLeds, nodeLedsIdx in freeLedList
 			curCofG = @getCofGforLeds(freeNodeLeds)
 			discardFree = false
 			for nodeLeds in nodeRationalisedList
-				if @dist(curCofG, @getCofGforLeds(nodeLeds.leds)) < @maxDistForNodeMerge
+				if @dist(curCofG, @getCofGforLeds(nodeLeds.leds)) < @minDistForEndNode
 					discardFree = true
 					break
 			for freeLeds in freeRationalisedList
-				if @dist(curCofG, @getCofGforLeds(freeLeds.leds)) < @maxDistForNodeMerge
+				if @dist(curCofG, @getCofGforLeds(freeLeds.leds)) < @minDistForEndNode
 					discardFree = true
 					break
 			if not discardFree
 				freeRationalisedList.push { leds: freeNodeLeds, CofG: @getCofGforLeds(freeNodeLeds), nodeDegree: 1 }
+
+		for testNode, testNodeIdx in nodeRationalisedList
+			oStr = testNodeIdx + " nodeLeds "
+			for testNodeLeds in testNode.leds
+				oStr += "[" + testNodeLeds[0] + "," + testNodeLeds[1] + "] "
+			console.log oStr
 
 		# Comnbine the node lists
 		fullNodeList = nodeRationalisedList.concat freeRationalisedList
@@ -163,12 +171,6 @@ class @SpideyGraph
 		console.log "InnerNodeList " + nodeRationalisedList.length
 		console.log "FreeNodeList " + freeRationalisedList.length
 		console.log "FullNodeList " + fullNodeList.length
-
-		# for testNode, testNodeIdx in fullNodeList
-		# 	oStr = testNodeIdx + " nodeLeds "
-		# 	for testNodeLeds in testNode.leds
-		# 		oStr += "[" + testNodeLeds[0] + "," + testNodeLeds[1] + "] "
-		# 	console.log oStr
 
 		# Build the graph
 		@edgeList = []
