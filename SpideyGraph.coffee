@@ -20,12 +20,12 @@ class @SpideyGraph
 		dy = led1.pt.y - led2.pt.y
 		return Math.sqrt(dx*dx+dy*dy)
 
-	getCofGforLeds: (padLedsData, ledList) ->
+	getCofGforLeds: (ledList) ->
 		xSum = 0
 		ySum = 0
 		for ledId in ledList
-			xSum += padLedsData[ledId[0]][ledId[1]].pt.x
-			ySum += padLedsData[ledId[0]][ledId[1]].pt.y
+			xSum += @padLedsData[ledId[0]][ledId[1]].pt.x
+			ySum += @padLedsData[ledId[0]][ledId[1]].pt.y
 		return {pt: { x: xSum/ledList.length, y: ySum/ledList.length } }
 
 	createGraph: (padOutlines, @padLedsData, @ledsSel, svg) ->
@@ -97,13 +97,36 @@ class @SpideyGraph
 					if ledIdx == 0 or ledIdx == padLedsData[padIdx].length-1
 					 	freeLedList.push ledAdjList
 
+		# Remove duplicated leds from the same pad from nodes
+
+		for nodeLeds, nodeLedsIdx in nodeLedList
+			ledDistances = {}
+			curCofG = @getCofGforLeds(nodeLeds)
+			for nodeLed in nodeLeds
+				distFromCofGtoLed = @dist(curCofG, @padLedsData[nodeLed[0]][nodeLed[1]])
+				if nodeLed[0] of ledDistances
+					if ledDistances[nodeLed[0]].dist > distFromCofGtoLed
+						ledDistances[nodeLed[0]].dist = distFromCofGtoLed
+						ledDistances[nodeLed[0]].padIdx = nodeLed[0]
+						ledDistances[nodeLed[0]].ledIdx = nodeLed[1]						
+				else
+					ledDistances[nodeLed[0]] =
+						dist: distFromCofGtoLed
+						padIdx: nodeLed[0]
+						ledIdx: nodeLed[1]
+			nodeLeds = []
+			for key,val of ledDistances
+				nodeLeds.push [val.padIdx, val.ledIdx]
+				console.log val.padIdx, val.ledIdx
+			console.log("")
+
 		# Rationalise node list
 		nodeRationalisedList = []
 		for nodeLeds, nodeLedsIdx in nodeLedList
-			curCofG = @getCofGforLeds(padLedsData, nodeLeds)
+			curCofG = @getCofGforLeds(nodeLeds)
 			for otherNodeLedsIdx in [nodeLedsIdx+1...nodeLedList.length]
 				listMerged = false
-				if @dist(curCofG, @getCofGforLeds(padLedsData, nodeLedList[otherNodeLedsIdx])) < @maxDistForNodeMerge
+				if @dist(curCofG, @getCofGforLeds(nodeLedList[otherNodeLedsIdx])) < @maxDistForNodeMerge
 					# merge leds into other list
 					for nodeLed in nodeLeds
 						alreadInList = false
@@ -115,23 +138,23 @@ class @SpideyGraph
 					listMerged = true
 					break
 			if not listMerged
-				nodeRationalisedList.push { leds: nodeLeds, CofG: @getCofGforLeds(padLedsData, nodeLeds), nodeDegree: 2 }
+				nodeRationalisedList.push { leds: nodeLeds, CofG: @getCofGforLeds(nodeLeds), nodeDegree: 2 }
 
 		# Rationalise the free nodes
 		freeRationalisedList = []
 		for freeNodeLeds, nodeLedsIdx in freeLedList
-			curCofG = @getCofGforLeds(padLedsData, freeNodeLeds)
+			curCofG = @getCofGforLeds(freeNodeLeds)
 			discardFree = false
 			for nodeLeds in nodeRationalisedList
-				if @dist(curCofG, @getCofGforLeds(padLedsData, nodeLeds.leds)) < @maxDistForNodeMerge
+				if @dist(curCofG, @getCofGforLeds(nodeLeds.leds)) < @maxDistForNodeMerge
 					discardFree = true
 					break
 			for freeLeds in freeRationalisedList
-				if @dist(curCofG, @getCofGforLeds(padLedsData, freeLeds.leds)) < @maxDistForNodeMerge
+				if @dist(curCofG, @getCofGforLeds(freeLeds.leds)) < @maxDistForNodeMerge
 					discardFree = true
 					break
 			if not discardFree
-				freeRationalisedList.push { leds: freeNodeLeds, CofG: @getCofGforLeds(padLedsData, freeNodeLeds), nodeDegree: 1 }
+				freeRationalisedList.push { leds: freeNodeLeds, CofG: @getCofGforLeds(freeNodeLeds), nodeDegree: 1 }
 
 		# Comnbine the node lists
 		fullNodeList = nodeRationalisedList.concat freeRationalisedList
