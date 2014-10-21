@@ -6,6 +6,7 @@ class @SpideyGraph
 	maxDistForNodeDetect: 10
 	maxDistForNodeMerge: 10
 	minDistForEndNode: 20
+	maxDistForFirstAndLastLedsOnCircularPad: 30
 
 	genColours: (numColours) ->
 		# assumes hue [0, 360), saturation [0, 100), lightness [0, 100)
@@ -119,10 +120,10 @@ class @SpideyGraph
 				nodeRationalisedList.push { leds: nodeLeds, CofG: @getCofGforLeds(nodeLeds), nodeDegree: 2 }
 
 		# Remove duplicated leds from the same pad from nodes
-		for nodeLeds, nodeLedsIdx in nodeRationalisedList
+		for nodeInfo in nodeRationalisedList
 			ledDistances = {}
-			curCofG = nodeLeds.CofG
-			for nodeLed in nodeLeds.leds
+			curCofG = nodeInfo.CofG
+			for nodeLed in nodeInfo.leds
 				distFromCofGtoLed = @dist(curCofG, @padLedsData[nodeLed[0]][nodeLed[1]])
 				console.log distFromCofGtoLed
 				if nodeLed[0] of ledDistances
@@ -135,12 +136,43 @@ class @SpideyGraph
 						dist: distFromCofGtoLed
 						padIdx: nodeLed[0]
 						ledIdx: nodeLed[1]
-			nodeLeds.leds = []
+			nodeInfo.leds = []
 			for key,val of ledDistances
-				nodeLeds.leds.push [val.padIdx, val.ledIdx]
+				nodeInfo.leds.push [val.padIdx, val.ledIdx]
 				console.log val.padIdx, val.ledIdx
-			nodeLeds.CofG = @getCofGforLeds(nodeLeds.leds)
+			nodeInfo.CofG = @getCofGforLeds(nodeInfo.leds)
 			console.log("")
+
+		# Ensure a single led only used in one node
+		ledsUsed = {}
+		for nodeInfo, nodeIdx in nodeRationalisedList
+			ledsModified = true
+			while ledsModified
+				ledsModified = false
+				for nodeLed in nodeInfo.leds
+					if nodeLed[0]*1000 + nodeLed[1] of ledsUsed
+						otherLedUse = ledsUsed[nodeLed[0]*1000 + nodeLed[1]]
+						if otherLedUse.nodeIdx isnt nodeIdx
+							ledInfo = padLedsData[nodeLed[0]][nodeLed[1]]
+							ledDist = @dist(ledInfo, nodeRationalisedList[nodeIdx].CofG)
+							otherLedDist = @dist(ledInfo, nodeRationalisedList[otherLedUse.nodeIdx].CofG)
+							if ledDist < otherLedDist
+								newList = []
+								for led in nodeRationalisedList[otherLedUse.nodeIdx].leds
+									if not (led[0] is nodeLed[0] and led[1] is nodeLed[1])
+										newList.push led
+								nodeRationalisedList[otherLedUse.nodeIdx].leds = newList
+								ledsUsed[nodeLed[0]*1000 + nodeLed[1]] = { nodeIdx: nodeIdx }
+							else
+								newList = []
+								for led in nodeRationalisedList[nodeIdx].leds
+									if not (led[0] is nodeLed[0] and led[1] is nodeLed[1])
+										newList.push led
+								nodeRationalisedList[nodeIdx].leds = newList
+							ledsModified = true
+							break
+					else
+						ledsUsed[nodeLed[0]*1000 + nodeLed[1]] = { nodeIdx: nodeIdx }
 
 		# Rationalise the free nodes
 		freeRationalisedList = []
@@ -166,6 +198,8 @@ class @SpideyGraph
 
 		# Comnbine the node lists
 		fullNodeList = nodeRationalisedList.concat freeRationalisedList
+		for node,nodeIdx in fullNodeList
+			node["nodeId"] = nodeIdx
 
 		# Rationalise nodes
 		console.log "InnerNodeList " + nodeRationalisedList.length
@@ -178,7 +212,14 @@ class @SpideyGraph
 			fullNode.edgesTo = []
 		for padAdjList,padIdx in @padAdjacencies
 			fromNode = null
-			for ledInfo,ledIdx in padLedsData[padIdx]
+			# Go entirely round the pads that are nearly continuous to find all edges
+			padCircuit = padLedsData[padIdx].length
+			if @dist(padLedsData[padIdx][0], padLedsData[padIdx][padCircuit-1]) < @maxDistForFirstAndLastLedsOnCircularPad
+				padCircuit += 5
+			for testLedIdx in [0...padCircuit]
+			# for ledInfo,ledIdx in padLedsData[padIdx]
+				ledIdx = testLedIdx % padLedsData[padIdx].length
+				ledInfo = padLedsData[padIdx][ledIdx]
 				# Find if this led belogs to any node
 				thisNode = null
 				for testNode, testNodeIdx in fullNodeList
@@ -191,32 +232,38 @@ class @SpideyGraph
 							break
 					if thisNode?
 						break
+				if thisNode? and (thisNode.nodeIdx is 20 or thisNode.nodeIdx is 19 or thisNode.nodeIdx is 0 or thisNode.nodeIdx is 27)
+					console.log "this node " + thisNode.nodeIdx + " fromNode " + (if fromNode? then fromNode.nodeIdx else "null") + " padIdx " + padIdx + " ledIdx " + ledIdx
 				if fromNode? and thisNode? and thisNode.nodeIdx isnt fromNode.nodeIdx
-					# console.log "fromNode " + fromNode + " thisNode " + thisNode
-					curEdgeIdx = @edgeList.length
-					if thisNode.nodeIdx not in fullNodeList[fromNode.nodeIdx].edgesTo
-						fullNodeList[fromNode.nodeIdx].edgesTo.push
-						 	toNodeIdx: thisNode.nodeIdx
-						 	edgeIdx: curEdgeIdx
-						edgeInfo = 
-							padIdx: padIdx
-							fromNodeIdx: fromNode.nodeIdx
-							fromNode: fullNodeList[fromNode.nodeIdx]
-							fromLedIdx: fromNode.ledIdx
-							toNodeIdx: thisNode.nodeIdx
-							toNode: fullNodeList[thisNode.nodeIdx]
-							toLedIdx: thisNode.ledIdx
-						@edgeList.push edgeInfo
-					if fromNode.nodeIdx not in fullNodeList[thisNode.nodeIdx].edgesTo
-						fullNodeList[thisNode.nodeIdx].edgesTo.push
-						 	toNodeIdx: fromNode.nodeIdx
-						 	edgeIdx: curEdgeIdx
+					if fullNodeList[fromNode.nodeIdx].nodeDegree > 1 or fullNodeList[thisNode.nodeIdx].nodeDegree > 1
+						# console.log "fromNode " + fromNode + " thisNode " + thisNode
+						curEdgeIdx = @edgeList.length
+						if thisNode.nodeIdx not in fullNodeList[fromNode.nodeIdx].edgesTo
+							fullNodeList[fromNode.nodeIdx].edgesTo.push
+							 	toNodeIdx: thisNode.nodeIdx
+							 	edgeIdx: curEdgeIdx
+							edgeInfo = 
+								padIdx: padIdx
+								fromNodeIdx: fromNode.nodeIdx
+								fromNode: fullNodeList[fromNode.nodeIdx]
+								fromLedIdx: fromNode.ledIdx
+								toNodeIdx: thisNode.nodeIdx
+								toNode: fullNodeList[thisNode.nodeIdx]
+								toLedIdx: thisNode.ledIdx
+							@edgeList.push edgeInfo
+						if fromNode.nodeIdx not in fullNodeList[thisNode.nodeIdx].edgesTo
+							fullNodeList[thisNode.nodeIdx].edgesTo.push
+							 	toNodeIdx: fromNode.nodeIdx
+							 	edgeIdx: curEdgeIdx
 
 				if thisNode?
 					# console.log "At node " + thisNode + " fromNode=" + fromNode
 					fromNode = {}
 					for key, val of thisNode
 						fromNode[key] = val
+
+		for edge in @edgeList
+			console.log "edge from " + edge.fromNodeIdx + " to node " + edge.toNodeIdx
 
 		# Edge list
 		# edgeList = []
@@ -267,6 +314,21 @@ class @SpideyGraph
 		 	.attr("x2", (d) -> return d.toNode.CofG.pt.x )
 		 	.attr("y2", (d) -> return d.toNode.CofG.pt.y )
 		 	.attr("stroke", (d,i) -> return 'black')
+
+		nodeLabels = svg
+			.selectAll(".nodelabels")
+			.data(fullNodeList)
+			.enter()
+			.append("text")
+			.attr("class","nodelabels")
+
+		nodeLabels
+			.attr("x", (d) -> return d.CofG.pt.x+5 )
+			.attr("y", (d) -> return d.CofG.pt.y-2 )
+			.text((d) -> return d.nodeId)
+			.attr("font-family", "sans-serif")
+			.attr("font-size", "10px")
+			.attr("fill", "#005050")
 
 		@animEdgeIdx = 0
 		@steps = 0
