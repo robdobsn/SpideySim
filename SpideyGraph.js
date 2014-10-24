@@ -533,7 +533,7 @@ this.SpideyGraph = (function() {
   };
 
   SpideyGraph.prototype.mousemove = function() {
-    var edgeStep, edgesTo, led, node, nodeIdx, pad, x, y, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _m, _n, _ref, _ref1, _ref2, _ref3, _results;
+    var edgeStep, edgesTo, led, node, nodeIdx, pad, sss, x, y, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _m, _n, _ref, _ref1, _ref2, _ref3, _results;
     x = event.x;
     y = event.y;
     _ref = this.fullNodeList;
@@ -546,6 +546,10 @@ this.SpideyGraph = (function() {
           y: y
         }
       }) < 10) {
+        sss = "http://fractal:5078/rawcmd/01010b0200010001" + Math.random().toString(16).substr(-6) + Math.random().toString(16).substr(-6);
+        $.get(sss, function(data) {
+          return console.log("Done get");
+        });
         _ref1 = this.padLedsData;
         for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
           pad = _ref1[_j];

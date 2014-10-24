@@ -409,6 +409,10 @@ class @SpideyGraph
 		y = event.y
 		for node, nodeIdx in @fullNodeList
 			if @dist(node.CofG, {pt: { x: x, y: y}}) < 10
+				sss = "http://fractal:5078/rawcmd/01010b0200010001" + Math.random().toString(16).substr(-6) + Math.random().toString(16).substr(-6)
+				$.get sss, ( data ) ->
+					console.log "Done get"
+
 				for pad in @padLedsData
 					for led in pad
 						led.clr = "#dcdcdc"
@@ -418,6 +422,7 @@ class @SpideyGraph
 							@padLedsData[led.padIdx][led.ledIdx].clr = "#000000"
 	 
 			@ledsSel.attr("fill", (d) -> return d.clr)
+
 
 				# # console.log "MouseOver " + nodeIdx
 				# tmpEdgeList = []
