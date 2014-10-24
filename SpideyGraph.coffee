@@ -1,5 +1,8 @@
 class @SpideyGraph
 
+	@DEBUG_EDGES: false
+	@DEBUG_NODES: false
+
 	padAdjacencies: []
 	maxDistForPadAdjacency: 300
 	maxDistForLedAdjacency: 10
@@ -26,19 +29,19 @@ class @SpideyGraph
 		xSum = 0
 		ySum = 0
 		for ledId in ledList
-			xSum += @padLedsData[ledId[0]][ledId[1]].pt.x
-			ySum += @padLedsData[ledId[0]][ledId[1]].pt.y
+			xSum += @padLedsList[ledId.padIdx][ledId.ledIdx].pt.x
+			ySum += @padLedsList[ledId.padIdx][ledId.ledIdx].pt.y
 		return {pt: { x: xSum/ledList.length, y: ySum/ledList.length } }
 
-	createGraph: (padOutlines, @padLedsData, @ledsSel, @svg) ->
+	createGraph: (padOutlines, @padLedsList, @ledsSel, @svg) ->
 
 		# Find pad adjacencies
-		for padLedsInfo, padIdx in padLedsData
+		for padLedsInfo, padIdx in @padLedsList
 			@padAdjacencies.push []
-			for otherPadIdx in [0...padLedsData.length]
+			for otherPadIdx in [0...@padLedsList.length]
 				if padIdx is otherPadIdx
 					continue
-				otherPadLedsInfo = padLedsData[otherPadIdx]
+				otherPadLedsInfo = @padLedsList[otherPadIdx]
 				if @dist(padLedsInfo[0], otherPadLedsInfo[0]) > @maxDistForPadAdjacency
 					continue
 				adjFound = false
@@ -54,179 +57,181 @@ class @SpideyGraph
 					if adjFound
 						break
 
-		# Find nodes
-		nodeLedList = []
-		# edgeLedList = []
-		freeLedList = []
+		# Find nodes (multi nodes are multiply connected - ie. degree > 1)
+		multiNodeLedsList = []
+		edgeNodeLedsList = []
 		for padAdjList,padIdx in @padAdjacencies
-			for ledInfo,ledIdx in padLedsData[padIdx]
+			for ledInfo,ledIdx in @padLedsList[padIdx]
 				ledAdjList = []
 				ledUniqPads = []
 				# Go around adjacent pads checking for leds within a specific
 				# distance of the currently checked led to identify a node
 				for otherPadIdx in padAdjList
 					ledPadFound = false
-					for otherLedInfo,otherLedIdx in padLedsData[otherPadIdx]
+					for otherLedInfo,otherLedIdx in @padLedsList[otherPadIdx]
 						if @dist(ledInfo, otherLedInfo) < @maxDistForNodeDetect
 							if ledAdjList.length is 0
-								ledAdjList.push [padIdx, ledIdx]
-							ledAdjList.push [otherPadIdx, otherLedIdx]
+								ledAdjList.push { padIdx: padIdx, ledIdx: ledIdx }
+							ledAdjList.push { padIdx: otherPadIdx, ledIdx: otherLedIdx }
 							if not ledPadFound
 								if otherPadIdx not in ledUniqPads
 									ledUniqPads.push otherPadIdx
 								ledPadFound = true
 							# console.log "Found " + padIdx + "." + ledIdx + " close to " + otherPadIdx + "." + otherLedIdx
-				# It's only a node if there are leds clustered together on
+				# It's only a multi-node if there are leds clustered together on
 				# more than 2 pads 
 				if ledUniqPads.length >= 2
 					nodeAlreadyInList = false
-					for nodeLeds in nodeLedList
+					for nodeLeds in multiNodeLedsList
 						for led in nodeLeds
-							if led[0] is padIdx
-								if led[1] is ledIdx
+							if led.padIdx is padIdx
+								if led.ledIdx is ledIdx
 									nodeAlreadyInList = true
 									break
 						if nodeAlreadyInList
 							break
 					if not nodeAlreadyInList
-						nodeLedList.push ledAdjList
-						if padIdx is 9
-							for led in ledAdjList
-								console.log led
-							console.log("")
+						multiNodeLedsList.push ledAdjList
 						# console.log "Node at " + padIdx + ", " + ledIdx + " adj " + ledAdjList.length
 				else
-					if ledIdx == 0 or ledIdx == padLedsData[padIdx].length-1
-					 	freeLedList.push ledAdjList
+					# Check if it's an edge node
+					if ledIdx == 0 or ledIdx == @padLedsList[padIdx].length-1
+					 	edgeNodeLedsList.push ledAdjList
 
-		# Rationalise node list
-		nodeRationalisedList = []
-		for nodeLeds, nodeLedsIdx in nodeLedList
-			curCofG = @getCofGforLeds(nodeLeds)
-			for otherNodeLedsIdx in [nodeLedsIdx+1...nodeLedList.length]
+		# Rationalise multi-node list
+		rationalisedMultiNodeLedsList = []
+		for multiNodeLeds, multiNodeLedsIdx in multiNodeLedsList
+			curCofG = @getCofGforLeds(multiNodeLeds)
+			for otherNodeLedsIdx in [multiNodeLedsIdx+1...multiNodeLedsList.length]
 				listMerged = false
-				if @dist(curCofG, @getCofGforLeds(nodeLedList[otherNodeLedsIdx])) < @maxDistForNodeMerge
+				if @dist(curCofG, @getCofGforLeds(multiNodeLedsList[otherNodeLedsIdx])) < @maxDistForNodeMerge
 					# merge leds into other list
-					for nodeLed in nodeLeds
+					for nodeLed in multiNodeLeds
 						alreadInList = false
-						for otherNodeLed in nodeLedList[otherNodeLedsIdx]
-							if nodeLed[0] is otherNodeLed[0] and nodeLed[1] is otherNodeLed[1]
+						for otherNodeLed in multiNodeLedsList[otherNodeLedsIdx]
+							if nodeLed.padIdx is otherNodeLed.padIdx and nodeLed.ledIdx is otherNodeLed.ledIdx
 								alreadInList = true
 						if not alreadInList
-							nodeLedList[otherNodeLedsIdx].push nodeLed
+							multiNodeLedsList[otherNodeLedsIdx].push nodeLed
 					listMerged = true
 					break
 			if not listMerged
-				nodeRationalisedList.push { leds: nodeLeds, CofG: @getCofGforLeds(nodeLeds), nodeDegree: 2 }
+				rationalisedMultiNodeLedsList.push { leds: multiNodeLeds, CofG: @getCofGforLeds(multiNodeLeds), nodeDegree: 2 }
 
 		# Rationalise the free nodes
-		freeRationalisedList = []
-		for freeNodeLeds, nodeLedsIdx in freeLedList
-			curCofG = @getCofGforLeds(freeNodeLeds)
+		rationalisedEdgeNodeLedsList = []
+		for edgeNodeLeds in edgeNodeLedsList
+			curCofG = @getCofGforLeds(edgeNodeLeds)
 			discardFree = false
-			for nodeLeds in nodeRationalisedList
+			for nodeLeds in rationalisedMultiNodeLedsList
 				if @dist(curCofG, @getCofGforLeds(nodeLeds.leds)) < @minDistForEndNode
 					discardFree = true
 					break
-			for freeLeds in freeRationalisedList
+			for freeLeds in rationalisedEdgeNodeLedsList
 				if @dist(curCofG, @getCofGforLeds(freeLeds.leds)) < @minDistForEndNode
 					discardFree = true
 					break
 			if not discardFree
-				freeRationalisedList.push { leds: freeNodeLeds, CofG: @getCofGforLeds(freeNodeLeds), nodeDegree: 1 }
+				rationalisedEdgeNodeLedsList.push { leds: edgeNodeLeds, CofG: @getCofGforLeds(edgeNodeLeds), nodeDegree: 1 }
 
 		# Comnbine the node lists
-		@fullNodeList = nodeRationalisedList.concat freeRationalisedList
-		for node,nodeIdx in @fullNodeList
-			node["nodeId"] = nodeIdx
+		@nodeList = rationalisedMultiNodeLedsList.concat rationalisedEdgeNodeLedsList
 
 		# Remove duplicated leds from the same pad from nodes
-		for nodeInfo in @fullNodeList
+		for nodeInfo in @nodeList
 			ledDistances = {}
 			curCofG = nodeInfo.CofG
 			for nodeLed in nodeInfo.leds
-				distFromCofGtoLed = @dist(curCofG, @padLedsData[nodeLed[0]][nodeLed[1]])
-				console.log distFromCofGtoLed
-				if nodeLed[0] of ledDistances
-					if ledDistances[nodeLed[0]].dist > distFromCofGtoLed
-						ledDistances[nodeLed[0]].dist = distFromCofGtoLed
-						ledDistances[nodeLed[0]].padIdx = nodeLed[0]
-						ledDistances[nodeLed[0]].ledIdx = nodeLed[1]						
+				distFromCofGtoLed = @dist(curCofG, @padLedsList[nodeLed.padIdx][nodeLed.ledIdx])
+				# console.log distFromCofGtoLed
+				if nodeLed.padIdx of ledDistances
+					if ledDistances[nodeLed.padIdx].dist > distFromCofGtoLed
+						ledDistances[nodeLed.padIdx].dist = distFromCofGtoLed
+						ledDistances[nodeLed.padIdx].padIdx = nodeLed.padIdx
+						ledDistances[nodeLed.padIdx].ledIdx = nodeLed.ledIdx				
 				else
-					ledDistances[nodeLed[0]] =
+					ledDistances[nodeLed.padIdx] =
 						dist: distFromCofGtoLed
-						padIdx: nodeLed[0]
-						ledIdx: nodeLed[1]
+						padIdx: nodeLed.padIdx
+						ledIdx: nodeLed.ledIdx
 			nodeInfo.leds = []
 			for key,val of ledDistances
-				nodeInfo.leds.push [val.padIdx, val.ledIdx]
-				console.log val.padIdx, val.ledIdx
+				nodeInfo.leds.push val
+				# console.log val.padIdx, val.ledIdx
 			nodeInfo.CofG = @getCofGforLeds(nodeInfo.leds)
-			console.log("")
+			# console.log("")
 
+		# Insert additional info into node
+		for node, nodeIdx in @nodeList
+			node["nodeId"] = nodeIdx
+			for led in node.leds
+				led["uniqId"] = led.padIdx * 1000 + led.ledIdx
+				led["led"] = @padLedsList[led.padIdx][led.ledIdx]
+	
 		# Ensure a single led only used in one node
 		ledsUsed = {}
-		for nodeInfo, nodeIdx in @fullNodeList
+		for nodeInfo, nodeIdx in @nodeList
 			ledsModified = true
 			while ledsModified
 				ledsModified = false
 				for nodeLed in nodeInfo.leds
-					if nodeLed[0]*1000 + nodeLed[1] of ledsUsed
-						otherLedUse = ledsUsed[nodeLed[0]*1000 + nodeLed[1]]
+					if nodeLed.uniqId of ledsUsed
+						otherLedUse = ledsUsed[nodeLed.uniqId]
 						if otherLedUse.nodeIdx isnt nodeIdx
-							ledInfo = padLedsData[nodeLed[0]][nodeLed[1]]
-							ledDist = @dist(ledInfo, @fullNodeList[nodeIdx].CofG)
-							otherLedDist = @dist(ledInfo, @fullNodeList[otherLedUse.nodeIdx].CofG)
+							ledInfo = @padLedsList[nodeLed.padIdx][nodeLed.ledIdx]
+							ledDist = @dist(ledInfo, @nodeList[nodeIdx].CofG)
+							otherLedDist = @dist(ledInfo, @nodeList[otherLedUse.nodeIdx].CofG)
 							if ledDist < otherLedDist
 								newList = []
-								for led in @fullNodeList[otherLedUse.nodeIdx].leds
-									if not (led[0] is nodeLed[0] and led[1] is nodeLed[1])
+								for led in @nodeList[otherLedUse.nodeIdx].leds
+									if not (led.padIdx is nodeLed.padIdx and led.ledIdx is nodeLed.ledIdx)
 										newList.push led
-								@fullNodeList[otherLedUse.nodeIdx].leds = newList
-								ledsUsed[nodeLed[0]*1000 + nodeLed[1]] = { nodeIdx: nodeIdx }
+								@nodeList[otherLedUse.nodeIdx].leds = newList
+								ledsUsed[nodeLed.uniqId] = { nodeIdx: nodeIdx }
 							else
 								newList = []
-								for led in @fullNodeList[nodeIdx].leds
-									if not (led[0] is nodeLed[0] and led[1] is nodeLed[1])
+								for led in @nodeList[nodeIdx].leds
+									if not (led.padIdx is nodeLed.padIdx and led.ledIdx is nodeLed.ledIdx)
 										newList.push led
-								@fullNodeList[nodeIdx].leds = newList
+								@nodeList[nodeIdx].leds = newList
 							ledsModified = true
 							break
 					else
-						ledsUsed[nodeLed[0]*1000 + nodeLed[1]] = { nodeIdx: nodeIdx }
+						ledsUsed[nodeLed.uniqId] = { nodeIdx: nodeIdx }
 
-
-		for testNode, testNodeIdx in @fullNodeList
-			oStr = testNodeIdx + " nodeLeds "
-			for testNodeLeds in testNode.leds
-				oStr += "[" + testNodeLeds[0] + "," + testNodeLeds[1] + "] "
-			console.log oStr
+		# Debug - show the node leds
+		if @DEBUG_NODES?
+			for testNode, testNodeIdx in @nodeList
+				oStr = testNodeIdx + " nodeLeds "
+				for testNodeLeds in testNode.leds
+					oStr += "[" + testNodeLeds.padIdx + "," + testNodeLeds.ledIdx + "] "
+				console.log oStr
 
 		# Rationalise nodes
-		console.log "InnerNodeList " + nodeRationalisedList.length
-		console.log "FreeNodeList " + freeRationalisedList.length
-		console.log "@fullNodeList " + @fullNodeList.length
+		console.log "InnerNodeList " + rationalisedMultiNodeLedsList.length
+		console.log "FreeNodeList " + rationalisedEdgeNodeLedsList.length
+		console.log "Combined nodeList " + @nodeList.length
 
 		# Build the graph
 		@edgeList = []
-		for fullNode in @fullNodeList
+		for fullNode in @nodeList
 			fullNode.edgesTo = []
 		for padAdjList,padIdx in @padAdjacencies
 			fromNode = null
 			# Go entirely round the pads that are nearly continuous to find all edges
-			padCircuit = padLedsData[padIdx].length
-			if @dist(padLedsData[padIdx][0], padLedsData[padIdx][padCircuit-1]) < @maxDistForFirstAndLastLedsOnCircularPad
+			padCircuit = @padLedsList[padIdx].length
+			if @dist(@padLedsList[padIdx][0], @padLedsList[padIdx][padCircuit-1]) < @maxDistForFirstAndLastLedsOnCircularPad
 				padCircuit += 5
 			for testLedIdx in [0...padCircuit]
-			# for ledInfo,ledIdx in padLedsData[padIdx]
-				ledIdx = testLedIdx % padLedsData[padIdx].length
-				ledInfo = padLedsData[padIdx][ledIdx]
-				wrappedRound = testLedIdx >= padLedsData[padIdx].length
+			# for ledInfo,ledIdx in @padLedsList[padIdx]
+				ledIdx = testLedIdx % @padLedsList[padIdx].length
+				ledInfo = @padLedsList[padIdx][ledIdx]
+				wrappedRound = testLedIdx >= @padLedsList[padIdx].length
 				# Find if this led belogs to any node
 				thisNode = null
-				for testNode, testNodeIdx in @fullNodeList
+				for testNode, testNodeIdx in @nodeList
 					for testNodeLeds in testNode.leds
-						if testNodeLeds[0] is padIdx and testNodeLeds[1] is ledIdx
+						if testNodeLeds.padIdx is padIdx and testNodeLeds.ledIdx is ledIdx
 							thisNode = 
 								nodeIdx: testNodeIdx
 								padIdx: padIdx
@@ -235,31 +240,30 @@ class @SpideyGraph
 					if thisNode?
 						break
 				if fromNode? and thisNode? and thisNode.nodeIdx isnt fromNode.nodeIdx
-					if (thisNode.nodeIdx is 63 or thisNode.nodeIdx is 83 or thisNode.nodeIdx is 82)
-						console.log "this node " + thisNode.nodeIdx + " fromNode " + (if fromNode? then fromNode.nodeIdx else "null") + " padIdx " + padIdx + " ledIdx " + ledIdx
-					if @fullNodeList[fromNode.nodeIdx].nodeDegree > 1 or @fullNodeList[thisNode.nodeIdx].nodeDegree > 1
-						console.log "fromNode " + fromNode + " thisNode " + thisNode
+					if @nodeList[fromNode.nodeIdx].nodeDegree > 1 or @nodeList[thisNode.nodeIdx].nodeDegree > 1
+						if @DEBUG_EDGES?
+							console.log "fromNode " + fromNode + " thisNode " + thisNode
 						curEdgeIdx = @edgeList.length
 						edgeLength = Math.abs(fromNode.ledIdx-thisNode.ledIdx)
 						if wrappedRound
-							padLedsData[padIdx].length - edgeLength
-						if not @fullNodeList[fromNode.nodeIdx].edgesTo.some( (el) -> el.toNodeIdx is thisNode.nodeIdx )
+							@padLedsList[padIdx].length - edgeLength
+						if not @nodeList[fromNode.nodeIdx].edgesTo.some( (el) -> el.toNodeIdx is thisNode.nodeIdx )
 
-							@fullNodeList[fromNode.nodeIdx].edgesTo.push
+							@nodeList[fromNode.nodeIdx].edgesTo.push
 							 	toNodeIdx: thisNode.nodeIdx
 							 	edgeIdx: curEdgeIdx
 							 	edgeLength: edgeLength
 							edgeInfo = 
 								padIdx: padIdx
 								fromNodeIdx: fromNode.nodeIdx
-								fromNode: @fullNodeList[fromNode.nodeIdx]
+								fromNode: @nodeList[fromNode.nodeIdx]
 								fromLedIdx: fromNode.ledIdx
 								toNodeIdx: thisNode.nodeIdx
-								toNode: @fullNodeList[thisNode.nodeIdx]
+								toNode: @nodeList[thisNode.nodeIdx]
 								toLedIdx: thisNode.ledIdx
 							@edgeList.push edgeInfo
-						if not @fullNodeList[thisNode.nodeIdx].edgesTo.some( (el) -> el.toNodeIdx is fromNode.nodeIdx )
-							@fullNodeList[thisNode.nodeIdx].edgesTo.push
+						if not @nodeList[thisNode.nodeIdx].edgesTo.some( (el) -> el.toNodeIdx is fromNode.nodeIdx )
+							@nodeList[thisNode.nodeIdx].edgesTo.push
 							 	toNodeIdx: fromNode.nodeIdx
 							 	edgeIdx: curEdgeIdx
 							 	edgeLength: edgeLength
@@ -270,37 +274,37 @@ class @SpideyGraph
 						fromNode[key] = val
 
 		# List nodes and edges
-		for node, nodeIdx in @fullNodeList
-			edgeStr = ""
-			for edgeTo in node.edgesTo
-				edgeStr += " " + edgeTo.toNodeIdx
-			console.log "Node " + nodeIdx + " edgesToNodes " + edgeStr
+		if @DEBUG_NODES? or @DEBUG_EDGES?
+			for node, nodeIdx in @nodeList
+				edgeStr = ""
+				for edgeTo in node.edgesTo
+					edgeStr += " " + edgeTo.toNodeIdx
+				console.log "Node " + nodeIdx + " edgesToNodes " + edgeStr
 
 		# Add edge info to nodes
-		for node, nodeIdx in @fullNodeList
+		for node, nodeIdx in @nodeList
 			for edgeTo in node.edgesTo
 				# work down edges of pads common to both nodes
 				edgeSteps = []
 				for nodeLed in node.leds
-					padIdx = nodeLed[0]
-					for toNodeLed in @fullNodeList[edgeTo.toNodeIdx].leds
-						if padIdx is toNodeLed[0]
+					padIdx = nodeLed.padIdx
+					for toNodeLed in @nodeList[edgeTo.toNodeIdx].leds
+						if padIdx is toNodeLed.padIdx
 							# find the number of leds in the edge
-							numleds = Math.abs(toNodeLed[1] - nodeLed[1])
-							ledInc = if toNodeLed[1] > nodeLed[1] then 1 else -1
-							ledBase = nodeLed[1]
-							if node.nodeDegree >= 2 and @fullNodeList[edgeTo.toNodeIdx].nodeDegree >= 2
-								wrapRoundNumLeds = @padLedsData[padIdx].length - numleds
+							numleds = Math.abs(toNodeLed.ledIdx - nodeLed.ledIdx)
+							ledInc = if toNodeLed.ledIdx > nodeLed.ledIdx then 1 else -1
+							ledBase = nodeLed.ledIdx
+							if node.nodeDegree >= 2 and @nodeList[edgeTo.toNodeIdx].nodeDegree >= 2
+								wrapRoundNumLeds = @padLedsList[padIdx].length - numleds
 								if numleds > wrapRoundNumLeds
 									numleds = wrapRoundNumLeds
 									ledInc = -ledInc
 							if numleds < edgeTo.edgeLength - 1 and numleds > edgeTo.edgeLength - 10
-								numleds = Math.abs(toNodeLed[1] - nodeLed[1])
+								numleds = Math.abs(toNodeLed.ledIdx - nodeLed.ledIdx)
 								ledInc = -ledInc
 
-							if DEBUG_EDGES?
-								if nodeIdx == 31
-									console.log "edgeLengthDiscrepancy from " + nodeIdx + " to " + edgeTo.toNodeIdx + " expected " + edgeTo.edgeLength + " is " + numleds
+							if @DEBUG_EDGES?
+								console.log "edgeLengthDiscrepancy from " + nodeIdx + " to " + edgeTo.toNodeIdx + " expected " + edgeTo.edgeLength + " is " + numleds
 
 							# if numleds < edgeTo.edgeLength - 1 and numleds > edgeTo.edgeLength - 10
 							# 	console.log "TESTTESTTEST " + nodeIdx + " to " + edgeTo.toNodeIdx + " expected " + edgeTo.edgeLength + " is " + numleds
@@ -309,17 +313,16 @@ class @SpideyGraph
 							for i in [0...numleds-1]
 								if edgeSteps.length <= i
 									edgeSteps[i] = []
-								tLedIdx = (ledBase+(i+1)*ledInc+@padLedsData[padIdx].length)%@padLedsData[padIdx].length
+								tLedIdx = (ledBase+(i+1)*ledInc+@padLedsList[padIdx].length)%@padLedsList[padIdx].length
 								edgeSteps[i].push { padIdx: padIdx, ledIdx: tLedIdx }
 								edgeStr2 += tLedIdx + ","
 
-							if DEBUG_EDGES?
-								if nodeIdx == 31
-									console.log "Edge from " + nodeIdx + " to " + edgeTo.toNodeIdx + " alongPad " + padIdx + " numleds= " + numleds + " fromNodeLed " + nodeLed[1] + " toNodeLed " + toNodeLed[1] + " edgeLeds " + edgeStr2
+							if @DEBUG_EDGES?
+								console.log "Edge from " + nodeIdx + " to " + edgeTo.toNodeIdx + " alongPad " + padIdx + " numleds= " + numleds + " fromNodeLed " + nodeLed.ledIdx + " toNodeLed " + toNodeLed.ledIdx + " edgeLeds " + edgeStr2
 
 				edgeTo.edgeList = edgeSteps
 
-				if DEBUG_EDGES?
+				if @DEBUG_EDGES?
 					edgeStr3 = "edgeSteps "
 					for step in edgeSteps
 						for leds in step
@@ -332,23 +335,23 @@ class @SpideyGraph
 
 		# # Edge list
 		# edgeList = []
-		# for node, nodeIdx in @fullNodeList
+		# for node, nodeIdx in @nodeList
 		# 	for edgesTo in node.edgesTo
-		# 		edgeList.push { from: { nodeIdx: nodeIdx, pt: node.CofG.pt }, to: { nodeIdx: edgesTo, pt: @fullNodeList[edgesTo].CofG.pt }}
+		# 		edgeList.push { from: { nodeIdx: nodeIdx, pt: node.CofG.pt }, to: { nodeIdx: edgesTo, pt: @nodeList[edgesTo].CofG.pt }}
 
-		colrs = @genColours(@fullNodeList.length)
+		colrs = @genColours(@nodeList.length)
 		colrIdx = 0
-		console.log "NumNodes = " + @fullNodeList.length
-		for nodeLeds in @fullNodeList
+		console.log "NumNodes = " + @nodeList.length
+		for nodeLeds in @nodeList
 			nodeLeds.colr = colrs[colrIdx++]
-		# @fullNodeList[0].colr = "#000000"
-		# for nodeLeds in nodeRationalisedList
+		# @nodeList[0].colr = "#000000"
+		# for nodeLeds in rationalisedMultiNodeLedsList
 		# 	colr = colrs[colrIdx++]
 		# 	for nodeLed in nodeLeds.leds
-		# 		padLedsData[nodeLed[0]][nodeLed[1]].clr = colr
+		# 		@padLedsList[nodeLed.padIdx][nodeLed.ledIdx].clr = colr
 
 		nodesSvg = @svg.selectAll("g.nodes")
-			.data(@fullNodeList)
+			.data(@nodeList)
 			.enter()
 			.append("g")
 			.attr("class","nodes")
@@ -359,7 +362,7 @@ class @SpideyGraph
 		 	.attr("r", 5)
 		 	.attr("fill", (d,i) -> return d.colr)
 
-		# for nod, nodIdx in @fullNodeList
+		# for nod, nodIdx in @nodeList
 		# 	nodStr = "node " + nodIdx + " edges "
 		# 	for ed in nod.edgesTo
 		# 		nodStr += ed + ", "
@@ -382,7 +385,7 @@ class @SpideyGraph
 
 		nodeLabels = @svg
 			.selectAll(".nodelabels")
-			.data(@fullNodeList)
+			.data(@nodeList)
 			.enter()
 			.append("text")
 			.attr("class","nodelabels")
@@ -407,19 +410,15 @@ class @SpideyGraph
 	mousemove: =>
 		x = event.x
 		y = event.y
-		for node, nodeIdx in @fullNodeList
+		for node, nodeIdx in @nodeList
 			if @dist(node.CofG, {pt: { x: x, y: y}}) < 10
-				sss = "http://fractal:5078/rawcmd/01010b0200010001" + Math.random().toString(16).substr(-6) + Math.random().toString(16).substr(-6)
-				$.get sss, ( data ) ->
-					console.log "Done get"
-
-				for pad in @padLedsData
+				for pad in @padLedsList
 					for led in pad
 						led.clr = "#dcdcdc"
 				for edgesTo in node.edgesTo
 					for edgeStep in edgesTo.edgeList
 						for led in edgeStep
-							@padLedsData[led.padIdx][led.ledIdx].clr = "#000000"
+							@padLedsList[led.padIdx][led.ledIdx].clr = "#000000"
 	 
 			@ledsSel.attr("fill", (d) -> return d.clr)
 
@@ -429,8 +428,8 @@ class @SpideyGraph
 				# edgesStr = ""
 				# for edgeTo in node.edgesTo
 				# 	tmpEdgeList.push
-				# 		fromNode: @fullNodeList[nodeIdx]
-				# 		toNode: @fullNodeList[edgeTo.toNodeIdx]
+				# 		fromNode: @nodeList[nodeIdx]
+				# 		toNode: @nodeList[edgeTo.toNodeIdx]
 				# 	edgesStr += edgeTo.toNodeIdx + " "
 				# console.log "Node " + nodeIdx + " edges " + edgesStr
 				# animEdgesSvg = @svg.selectAll("g.animedges")
@@ -454,6 +453,11 @@ class @SpideyGraph
 
 			 	# break
 
+	ledCmd: () =>
+		sss = "http://fractal:5078/rawcmd/01010b0200010001" + Math.random().toString(16).substr(-6) + Math.random().toString(16).substr(-6)
+		$.get sss, ( data ) ->
+			console.log "."
+
 	stepFn: =>
 
 		@steps++
@@ -461,35 +465,31 @@ class @SpideyGraph
 			@steps = 0
 			return false
 
-		for pad in @padLedsData
+		for pad in @padLedsList
 			for led in pad
 				led.clr = "#dcdcdc"
 
 		# If at a node then select an edge randomly
 		if @atANode
-			@animEdgeIdx = Math.floor(Math.random() * @fullNodeList[@animNodeIdx].edgesTo.length)
+			@animEdgeIdx = Math.floor(Math.random() * @nodeList[@animNodeIdx].edgesTo.length)
 			@atANode = false
 			@animEdgeStep = 0
-			for nodeLed in @fullNodeList[@animNodeIdx].leds
-				@padLedsData[nodeLed[0]][nodeLed[1]].clr = "#000000"
+			for nodeLed in @nodeList[@animNodeIdx].leds
+				@padLedsList[nodeLed.padIdx][nodeLed.ledIdx].clr = "#000000"
 			# check for zero length edge
-			if @fullNodeList[@animNodeIdx].edgesTo[@animEdgeIdx].edgeList.length == 0
-				@animNodeIdx = @fullNodeList[@animNodeIdx].edgesTo[@animEdgeIdx].toNodeIdx
+			if @nodeList[@animNodeIdx].edgesTo[@animEdgeIdx].edgeList.length == 0
+				@animNodeIdx = @nodeList[@animNodeIdx].edgesTo[@animEdgeIdx].toNodeIdx
 				@atANode = true
 		else
-			edgeSteps = @fullNodeList[@animNodeIdx].edgesTo[@animEdgeIdx].edgeList
+			edgeSteps = @nodeList[@animNodeIdx].edgesTo[@animEdgeIdx].edgeList
 			if @animEdgeStep < edgeSteps.length
 				for led in edgeSteps[@animEdgeStep]
-					@padLedsData[led.padIdx][led.ledIdx].clr = "#000000"
+					@padLedsList[led.padIdx][led.ledIdx].clr = "#000000"
 			@animEdgeStep++
 			if @animEdgeStep >= edgeSteps.length
-				@animNodeIdx = @fullNodeList[@animNodeIdx].edgesTo[@animEdgeIdx].toNodeIdx
+				@animNodeIdx = @nodeList[@animNodeIdx].edgesTo[@animEdgeIdx].toNodeIdx
 				@atANode = true
 
 		@ledsSel.attr("fill", (d) -> return d.clr)
-
-
-
-
 
 		return false

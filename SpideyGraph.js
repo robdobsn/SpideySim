@@ -5,8 +5,13 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
 this.SpideyGraph = (function() {
   function SpideyGraph() {
     this.stepFn = __bind(this.stepFn, this);
+    this.ledCmd = __bind(this.ledCmd, this);
     this.mousemove = __bind(this.mousemove, this);
   }
+
+  SpideyGraph.DEBUG_EDGES = false;
+
+  SpideyGraph.DEBUG_NODES = false;
 
   SpideyGraph.prototype.padAdjacencies = [];
 
@@ -46,8 +51,8 @@ this.SpideyGraph = (function() {
     ySum = 0;
     for (_i = 0, _len = ledList.length; _i < _len; _i++) {
       ledId = ledList[_i];
-      xSum += this.padLedsData[ledId[0]][ledId[1]].pt.x;
-      ySum += this.padLedsData[ledId[0]][ledId[1]].pt.y;
+      xSum += this.padLedsList[ledId.padIdx][ledId.ledIdx].pt.x;
+      ySum += this.padLedsList[ledId.padIdx][ledId.ledIdx].pt.y;
     }
     return {
       pt: {
@@ -57,19 +62,20 @@ this.SpideyGraph = (function() {
     };
   };
 
-  SpideyGraph.prototype.createGraph = function(padOutlines, padLedsData, ledsSel, svg) {
-    var adjFound, alreadInList, colrIdx, colrs, curCofG, curEdgeIdx, discardFree, distFromCofGtoLed, edgeInfo, edgeLength, edgeSteps, edgeStr, edgeStr2, edgeStr3, edgeTo, edgesSvg, freeLedList, freeLeds, freeNodeLeds, freeRationalisedList, fromNode, fullNode, i, key, led, ledAdjList, ledBase, ledDist, ledDistances, ledIdx, ledInc, ledInfo, ledPadFound, ledUniqPads, leds, ledsModified, ledsUsed, listMerged, newList, node, nodeAlreadyInList, nodeIdx, nodeInfo, nodeLabels, nodeLed, nodeLedList, nodeLeds, nodeLedsIdx, nodeRationalisedList, nodesSvg, numleds, oStr, otherLedDist, otherLedIdx, otherLedInfo, otherLedUse, otherNodeLed, otherNodeLedsIdx, otherPadIdx, otherPadLedsInfo, padAdjList, padCircuit, padIdx, padLedsInfo, step, tLedIdx, testLedIdx, testNode, testNodeIdx, testNodeLeds, thisNode, toNodeLed, val, wrapRoundNumLeds, wrappedRound, _aa, _ab, _ac, _ad, _ae, _af, _ag, _ah, _ai, _aj, _ak, _al, _am, _an, _ao, _ap, _aq, _ar, _as, _at, _au, _av, _aw, _ax, _i, _j, _k, _l, _len, _len1, _len10, _len11, _len12, _len13, _len14, _len15, _len16, _len17, _len18, _len19, _len2, _len20, _len21, _len22, _len23, _len24, _len25, _len26, _len27, _len28, _len29, _len3, _len30, _len31, _len32, _len33, _len34, _len35, _len36, _len37, _len4, _len5, _len6, _len7, _len8, _len9, _m, _n, _o, _p, _q, _r, _ref, _ref1, _ref10, _ref11, _ref12, _ref13, _ref14, _ref15, _ref16, _ref17, _ref18, _ref19, _ref2, _ref20, _ref21, _ref22, _ref23, _ref24, _ref25, _ref26, _ref27, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9, _s, _t, _u, _v, _w, _x, _y, _z;
-    this.padLedsData = padLedsData;
+  SpideyGraph.prototype.createGraph = function(padOutlines, padLedsList, ledsSel, svg) {
+    var adjFound, alreadInList, colrIdx, colrs, curCofG, curEdgeIdx, discardFree, distFromCofGtoLed, edgeInfo, edgeLength, edgeNodeLeds, edgeNodeLedsList, edgeSteps, edgeStr, edgeStr2, edgeStr3, edgeTo, edgesSvg, freeLeds, fromNode, fullNode, i, key, led, ledAdjList, ledBase, ledDist, ledDistances, ledIdx, ledInc, ledInfo, ledPadFound, ledUniqPads, leds, ledsModified, ledsUsed, listMerged, multiNodeLeds, multiNodeLedsIdx, multiNodeLedsList, newList, node, nodeAlreadyInList, nodeIdx, nodeInfo, nodeLabels, nodeLed, nodeLeds, nodesSvg, numleds, oStr, otherLedDist, otherLedIdx, otherLedInfo, otherLedUse, otherNodeLed, otherNodeLedsIdx, otherPadIdx, otherPadLedsInfo, padAdjList, padCircuit, padIdx, padLedsInfo, rationalisedEdgeNodeLedsList, rationalisedMultiNodeLedsList, step, tLedIdx, testLedIdx, testNode, testNodeIdx, testNodeLeds, thisNode, toNodeLed, val, wrapRoundNumLeds, wrappedRound, _aa, _ab, _ac, _ad, _ae, _af, _ag, _ah, _ai, _aj, _ak, _al, _am, _an, _ao, _ap, _aq, _ar, _as, _at, _au, _av, _aw, _ax, _i, _j, _k, _l, _len, _len1, _len10, _len11, _len12, _len13, _len14, _len15, _len16, _len17, _len18, _len19, _len2, _len20, _len21, _len22, _len23, _len24, _len25, _len26, _len27, _len28, _len29, _len3, _len30, _len31, _len32, _len33, _len34, _len35, _len36, _len37, _len4, _len5, _len6, _len7, _len8, _len9, _m, _n, _o, _p, _q, _r, _ref, _ref1, _ref10, _ref11, _ref12, _ref13, _ref14, _ref15, _ref16, _ref17, _ref18, _ref19, _ref2, _ref20, _ref21, _ref22, _ref23, _ref24, _ref25, _ref26, _ref27, _ref28, _ref29, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9, _s, _t, _u, _v, _w, _x, _y, _z;
+    this.padLedsList = padLedsList;
     this.ledsSel = ledsSel;
     this.svg = svg;
-    for (padIdx = _i = 0, _len = padLedsData.length; _i < _len; padIdx = ++_i) {
-      padLedsInfo = padLedsData[padIdx];
+    _ref = this.padLedsList;
+    for (padIdx = _i = 0, _len = _ref.length; _i < _len; padIdx = ++_i) {
+      padLedsInfo = _ref[padIdx];
       this.padAdjacencies.push([]);
-      for (otherPadIdx = _j = 0, _ref = padLedsData.length; 0 <= _ref ? _j < _ref : _j > _ref; otherPadIdx = 0 <= _ref ? ++_j : --_j) {
+      for (otherPadIdx = _j = 0, _ref1 = this.padLedsList.length; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; otherPadIdx = 0 <= _ref1 ? ++_j : --_j) {
         if (padIdx === otherPadIdx) {
           continue;
         }
-        otherPadLedsInfo = padLedsData[otherPadIdx];
+        otherPadLedsInfo = this.padLedsList[otherPadIdx];
         if (this.dist(padLedsInfo[0], otherPadLedsInfo[0]) > this.maxDistForPadAdjacency) {
           continue;
         }
@@ -93,27 +99,33 @@ this.SpideyGraph = (function() {
         }
       }
     }
-    nodeLedList = [];
-    freeLedList = [];
-    _ref1 = this.padAdjacencies;
-    for (padIdx = _m = 0, _len3 = _ref1.length; _m < _len3; padIdx = ++_m) {
-      padAdjList = _ref1[padIdx];
-      _ref2 = padLedsData[padIdx];
-      for (ledIdx = _n = 0, _len4 = _ref2.length; _n < _len4; ledIdx = ++_n) {
-        ledInfo = _ref2[ledIdx];
+    multiNodeLedsList = [];
+    edgeNodeLedsList = [];
+    _ref2 = this.padAdjacencies;
+    for (padIdx = _m = 0, _len3 = _ref2.length; _m < _len3; padIdx = ++_m) {
+      padAdjList = _ref2[padIdx];
+      _ref3 = this.padLedsList[padIdx];
+      for (ledIdx = _n = 0, _len4 = _ref3.length; _n < _len4; ledIdx = ++_n) {
+        ledInfo = _ref3[ledIdx];
         ledAdjList = [];
         ledUniqPads = [];
         for (_o = 0, _len5 = padAdjList.length; _o < _len5; _o++) {
           otherPadIdx = padAdjList[_o];
           ledPadFound = false;
-          _ref3 = padLedsData[otherPadIdx];
-          for (otherLedIdx = _p = 0, _len6 = _ref3.length; _p < _len6; otherLedIdx = ++_p) {
-            otherLedInfo = _ref3[otherLedIdx];
+          _ref4 = this.padLedsList[otherPadIdx];
+          for (otherLedIdx = _p = 0, _len6 = _ref4.length; _p < _len6; otherLedIdx = ++_p) {
+            otherLedInfo = _ref4[otherLedIdx];
             if (this.dist(ledInfo, otherLedInfo) < this.maxDistForNodeDetect) {
               if (ledAdjList.length === 0) {
-                ledAdjList.push([padIdx, ledIdx]);
+                ledAdjList.push({
+                  padIdx: padIdx,
+                  ledIdx: ledIdx
+                });
               }
-              ledAdjList.push([otherPadIdx, otherLedIdx]);
+              ledAdjList.push({
+                padIdx: otherPadIdx,
+                ledIdx: otherLedIdx
+              });
               if (!ledPadFound) {
                 if (__indexOf.call(ledUniqPads, otherPadIdx) < 0) {
                   ledUniqPads.push(otherPadIdx);
@@ -125,12 +137,12 @@ this.SpideyGraph = (function() {
         }
         if (ledUniqPads.length >= 2) {
           nodeAlreadyInList = false;
-          for (_q = 0, _len7 = nodeLedList.length; _q < _len7; _q++) {
-            nodeLeds = nodeLedList[_q];
+          for (_q = 0, _len7 = multiNodeLedsList.length; _q < _len7; _q++) {
+            nodeLeds = multiNodeLedsList[_q];
             for (_r = 0, _len8 = nodeLeds.length; _r < _len8; _r++) {
               led = nodeLeds[_r];
-              if (led[0] === padIdx) {
-                if (led[1] === ledIdx) {
+              if (led.padIdx === padIdx) {
+                if (led.ledIdx === ledIdx) {
                   nodeAlreadyInList = true;
                   break;
                 }
@@ -141,41 +153,34 @@ this.SpideyGraph = (function() {
             }
           }
           if (!nodeAlreadyInList) {
-            nodeLedList.push(ledAdjList);
-            if (padIdx === 9) {
-              for (_s = 0, _len9 = ledAdjList.length; _s < _len9; _s++) {
-                led = ledAdjList[_s];
-                console.log(led);
-              }
-              console.log("");
-            }
+            multiNodeLedsList.push(ledAdjList);
           }
         } else {
-          if (ledIdx === 0 || ledIdx === padLedsData[padIdx].length - 1) {
-            freeLedList.push(ledAdjList);
+          if (ledIdx === 0 || ledIdx === this.padLedsList[padIdx].length - 1) {
+            edgeNodeLedsList.push(ledAdjList);
           }
         }
       }
     }
-    nodeRationalisedList = [];
-    for (nodeLedsIdx = _t = 0, _len10 = nodeLedList.length; _t < _len10; nodeLedsIdx = ++_t) {
-      nodeLeds = nodeLedList[nodeLedsIdx];
-      curCofG = this.getCofGforLeds(nodeLeds);
-      for (otherNodeLedsIdx = _u = _ref4 = nodeLedsIdx + 1, _ref5 = nodeLedList.length; _ref4 <= _ref5 ? _u < _ref5 : _u > _ref5; otherNodeLedsIdx = _ref4 <= _ref5 ? ++_u : --_u) {
+    rationalisedMultiNodeLedsList = [];
+    for (multiNodeLedsIdx = _s = 0, _len9 = multiNodeLedsList.length; _s < _len9; multiNodeLedsIdx = ++_s) {
+      multiNodeLeds = multiNodeLedsList[multiNodeLedsIdx];
+      curCofG = this.getCofGforLeds(multiNodeLeds);
+      for (otherNodeLedsIdx = _t = _ref5 = multiNodeLedsIdx + 1, _ref6 = multiNodeLedsList.length; _ref5 <= _ref6 ? _t < _ref6 : _t > _ref6; otherNodeLedsIdx = _ref5 <= _ref6 ? ++_t : --_t) {
         listMerged = false;
-        if (this.dist(curCofG, this.getCofGforLeds(nodeLedList[otherNodeLedsIdx])) < this.maxDistForNodeMerge) {
-          for (_v = 0, _len11 = nodeLeds.length; _v < _len11; _v++) {
-            nodeLed = nodeLeds[_v];
+        if (this.dist(curCofG, this.getCofGforLeds(multiNodeLedsList[otherNodeLedsIdx])) < this.maxDistForNodeMerge) {
+          for (_u = 0, _len10 = multiNodeLeds.length; _u < _len10; _u++) {
+            nodeLed = multiNodeLeds[_u];
             alreadInList = false;
-            _ref6 = nodeLedList[otherNodeLedsIdx];
-            for (_w = 0, _len12 = _ref6.length; _w < _len12; _w++) {
-              otherNodeLed = _ref6[_w];
-              if (nodeLed[0] === otherNodeLed[0] && nodeLed[1] === otherNodeLed[1]) {
+            _ref7 = multiNodeLedsList[otherNodeLedsIdx];
+            for (_v = 0, _len11 = _ref7.length; _v < _len11; _v++) {
+              otherNodeLed = _ref7[_v];
+              if (nodeLed.padIdx === otherNodeLed.padIdx && nodeLed.ledIdx === otherNodeLed.ledIdx) {
                 alreadInList = true;
               }
             }
             if (!alreadInList) {
-              nodeLedList[otherNodeLedsIdx].push(nodeLed);
+              multiNodeLedsList[otherNodeLedsIdx].push(nodeLed);
             }
           }
           listMerged = true;
@@ -183,170 +188,175 @@ this.SpideyGraph = (function() {
         }
       }
       if (!listMerged) {
-        nodeRationalisedList.push({
-          leds: nodeLeds,
-          CofG: this.getCofGforLeds(nodeLeds),
+        rationalisedMultiNodeLedsList.push({
+          leds: multiNodeLeds,
+          CofG: this.getCofGforLeds(multiNodeLeds),
           nodeDegree: 2
         });
       }
     }
-    freeRationalisedList = [];
-    for (nodeLedsIdx = _x = 0, _len13 = freeLedList.length; _x < _len13; nodeLedsIdx = ++_x) {
-      freeNodeLeds = freeLedList[nodeLedsIdx];
-      curCofG = this.getCofGforLeds(freeNodeLeds);
+    rationalisedEdgeNodeLedsList = [];
+    for (_w = 0, _len12 = edgeNodeLedsList.length; _w < _len12; _w++) {
+      edgeNodeLeds = edgeNodeLedsList[_w];
+      curCofG = this.getCofGforLeds(edgeNodeLeds);
       discardFree = false;
-      for (_y = 0, _len14 = nodeRationalisedList.length; _y < _len14; _y++) {
-        nodeLeds = nodeRationalisedList[_y];
+      for (_x = 0, _len13 = rationalisedMultiNodeLedsList.length; _x < _len13; _x++) {
+        nodeLeds = rationalisedMultiNodeLedsList[_x];
         if (this.dist(curCofG, this.getCofGforLeds(nodeLeds.leds)) < this.minDistForEndNode) {
           discardFree = true;
           break;
         }
       }
-      for (_z = 0, _len15 = freeRationalisedList.length; _z < _len15; _z++) {
-        freeLeds = freeRationalisedList[_z];
+      for (_y = 0, _len14 = rationalisedEdgeNodeLedsList.length; _y < _len14; _y++) {
+        freeLeds = rationalisedEdgeNodeLedsList[_y];
         if (this.dist(curCofG, this.getCofGforLeds(freeLeds.leds)) < this.minDistForEndNode) {
           discardFree = true;
           break;
         }
       }
       if (!discardFree) {
-        freeRationalisedList.push({
-          leds: freeNodeLeds,
-          CofG: this.getCofGforLeds(freeNodeLeds),
+        rationalisedEdgeNodeLedsList.push({
+          leds: edgeNodeLeds,
+          CofG: this.getCofGforLeds(edgeNodeLeds),
           nodeDegree: 1
         });
       }
     }
-    this.fullNodeList = nodeRationalisedList.concat(freeRationalisedList);
-    _ref7 = this.fullNodeList;
-    for (nodeIdx = _aa = 0, _len16 = _ref7.length; _aa < _len16; nodeIdx = ++_aa) {
-      node = _ref7[nodeIdx];
-      node["nodeId"] = nodeIdx;
-    }
-    _ref8 = this.fullNodeList;
-    for (_ab = 0, _len17 = _ref8.length; _ab < _len17; _ab++) {
-      nodeInfo = _ref8[_ab];
+    this.nodeList = rationalisedMultiNodeLedsList.concat(rationalisedEdgeNodeLedsList);
+    _ref8 = this.nodeList;
+    for (_z = 0, _len15 = _ref8.length; _z < _len15; _z++) {
+      nodeInfo = _ref8[_z];
       ledDistances = {};
       curCofG = nodeInfo.CofG;
       _ref9 = nodeInfo.leds;
-      for (_ac = 0, _len18 = _ref9.length; _ac < _len18; _ac++) {
-        nodeLed = _ref9[_ac];
-        distFromCofGtoLed = this.dist(curCofG, this.padLedsData[nodeLed[0]][nodeLed[1]]);
-        console.log(distFromCofGtoLed);
-        if (nodeLed[0] in ledDistances) {
-          if (ledDistances[nodeLed[0]].dist > distFromCofGtoLed) {
-            ledDistances[nodeLed[0]].dist = distFromCofGtoLed;
-            ledDistances[nodeLed[0]].padIdx = nodeLed[0];
-            ledDistances[nodeLed[0]].ledIdx = nodeLed[1];
+      for (_aa = 0, _len16 = _ref9.length; _aa < _len16; _aa++) {
+        nodeLed = _ref9[_aa];
+        distFromCofGtoLed = this.dist(curCofG, this.padLedsList[nodeLed.padIdx][nodeLed.ledIdx]);
+        if (nodeLed.padIdx in ledDistances) {
+          if (ledDistances[nodeLed.padIdx].dist > distFromCofGtoLed) {
+            ledDistances[nodeLed.padIdx].dist = distFromCofGtoLed;
+            ledDistances[nodeLed.padIdx].padIdx = nodeLed.padIdx;
+            ledDistances[nodeLed.padIdx].ledIdx = nodeLed.ledIdx;
           }
         } else {
-          ledDistances[nodeLed[0]] = {
+          ledDistances[nodeLed.padIdx] = {
             dist: distFromCofGtoLed,
-            padIdx: nodeLed[0],
-            ledIdx: nodeLed[1]
+            padIdx: nodeLed.padIdx,
+            ledIdx: nodeLed.ledIdx
           };
         }
       }
       nodeInfo.leds = [];
       for (key in ledDistances) {
         val = ledDistances[key];
-        nodeInfo.leds.push([val.padIdx, val.ledIdx]);
-        console.log(val.padIdx, val.ledIdx);
+        nodeInfo.leds.push(val);
       }
       nodeInfo.CofG = this.getCofGforLeds(nodeInfo.leds);
-      console.log("");
+    }
+    _ref10 = this.nodeList;
+    for (nodeIdx = _ab = 0, _len17 = _ref10.length; _ab < _len17; nodeIdx = ++_ab) {
+      node = _ref10[nodeIdx];
+      node["nodeId"] = nodeIdx;
+      _ref11 = node.leds;
+      for (_ac = 0, _len18 = _ref11.length; _ac < _len18; _ac++) {
+        led = _ref11[_ac];
+        led["uniqId"] = led.padIdx * 1000 + led.ledIdx;
+        led["led"] = this.padLedsList[led.padIdx][led.ledIdx];
+      }
     }
     ledsUsed = {};
-    _ref10 = this.fullNodeList;
-    for (nodeIdx = _ad = 0, _len19 = _ref10.length; _ad < _len19; nodeIdx = ++_ad) {
-      nodeInfo = _ref10[nodeIdx];
+    _ref12 = this.nodeList;
+    for (nodeIdx = _ad = 0, _len19 = _ref12.length; _ad < _len19; nodeIdx = ++_ad) {
+      nodeInfo = _ref12[nodeIdx];
       ledsModified = true;
       while (ledsModified) {
         ledsModified = false;
-        _ref11 = nodeInfo.leds;
-        for (_ae = 0, _len20 = _ref11.length; _ae < _len20; _ae++) {
-          nodeLed = _ref11[_ae];
-          if (nodeLed[0] * 1000 + nodeLed[1] in ledsUsed) {
-            otherLedUse = ledsUsed[nodeLed[0] * 1000 + nodeLed[1]];
+        _ref13 = nodeInfo.leds;
+        for (_ae = 0, _len20 = _ref13.length; _ae < _len20; _ae++) {
+          nodeLed = _ref13[_ae];
+          if (nodeLed.uniqId in ledsUsed) {
+            otherLedUse = ledsUsed[nodeLed.uniqId];
             if (otherLedUse.nodeIdx !== nodeIdx) {
-              ledInfo = padLedsData[nodeLed[0]][nodeLed[1]];
-              ledDist = this.dist(ledInfo, this.fullNodeList[nodeIdx].CofG);
-              otherLedDist = this.dist(ledInfo, this.fullNodeList[otherLedUse.nodeIdx].CofG);
+              ledInfo = this.padLedsList[nodeLed.padIdx][nodeLed.ledIdx];
+              ledDist = this.dist(ledInfo, this.nodeList[nodeIdx].CofG);
+              otherLedDist = this.dist(ledInfo, this.nodeList[otherLedUse.nodeIdx].CofG);
               if (ledDist < otherLedDist) {
                 newList = [];
-                _ref12 = this.fullNodeList[otherLedUse.nodeIdx].leds;
-                for (_af = 0, _len21 = _ref12.length; _af < _len21; _af++) {
-                  led = _ref12[_af];
-                  if (!(led[0] === nodeLed[0] && led[1] === nodeLed[1])) {
+                _ref14 = this.nodeList[otherLedUse.nodeIdx].leds;
+                for (_af = 0, _len21 = _ref14.length; _af < _len21; _af++) {
+                  led = _ref14[_af];
+                  if (!(led.padIdx === nodeLed.padIdx && led.ledIdx === nodeLed.ledIdx)) {
                     newList.push(led);
                   }
                 }
-                this.fullNodeList[otherLedUse.nodeIdx].leds = newList;
-                ledsUsed[nodeLed[0] * 1000 + nodeLed[1]] = {
+                this.nodeList[otherLedUse.nodeIdx].leds = newList;
+                ledsUsed[nodeLed.uniqId] = {
                   nodeIdx: nodeIdx
                 };
               } else {
                 newList = [];
-                _ref13 = this.fullNodeList[nodeIdx].leds;
-                for (_ag = 0, _len22 = _ref13.length; _ag < _len22; _ag++) {
-                  led = _ref13[_ag];
-                  if (!(led[0] === nodeLed[0] && led[1] === nodeLed[1])) {
+                _ref15 = this.nodeList[nodeIdx].leds;
+                for (_ag = 0, _len22 = _ref15.length; _ag < _len22; _ag++) {
+                  led = _ref15[_ag];
+                  if (!(led.padIdx === nodeLed.padIdx && led.ledIdx === nodeLed.ledIdx)) {
                     newList.push(led);
                   }
                 }
-                this.fullNodeList[nodeIdx].leds = newList;
+                this.nodeList[nodeIdx].leds = newList;
               }
               ledsModified = true;
               break;
             }
           } else {
-            ledsUsed[nodeLed[0] * 1000 + nodeLed[1]] = {
+            ledsUsed[nodeLed.uniqId] = {
               nodeIdx: nodeIdx
             };
           }
         }
       }
     }
-    _ref14 = this.fullNodeList;
-    for (testNodeIdx = _ah = 0, _len23 = _ref14.length; _ah < _len23; testNodeIdx = ++_ah) {
-      testNode = _ref14[testNodeIdx];
-      oStr = testNodeIdx + " nodeLeds ";
-      _ref15 = testNode.leds;
-      for (_ai = 0, _len24 = _ref15.length; _ai < _len24; _ai++) {
-        testNodeLeds = _ref15[_ai];
-        oStr += "[" + testNodeLeds[0] + "," + testNodeLeds[1] + "] ";
+    if (this.DEBUG_NODES != null) {
+      _ref16 = this.nodeList;
+      for (testNodeIdx = _ah = 0, _len23 = _ref16.length; _ah < _len23; testNodeIdx = ++_ah) {
+        testNode = _ref16[testNodeIdx];
+        oStr = testNodeIdx + " nodeLeds ";
+        _ref17 = testNode.leds;
+        for (_ai = 0, _len24 = _ref17.length; _ai < _len24; _ai++) {
+          testNodeLeds = _ref17[_ai];
+          oStr += "[" + testNodeLeds.padIdx + "," + testNodeLeds.ledIdx + "] ";
+        }
+        console.log(oStr);
       }
-      console.log(oStr);
     }
-    console.log("InnerNodeList " + nodeRationalisedList.length);
-    console.log("FreeNodeList " + freeRationalisedList.length);
-    console.log("@fullNodeList " + this.fullNodeList.length);
+    console.log("InnerNodeList " + rationalisedMultiNodeLedsList.length);
+    console.log("FreeNodeList " + rationalisedEdgeNodeLedsList.length);
+    console.log("Combined nodeList " + this.nodeList.length);
     this.edgeList = [];
-    _ref16 = this.fullNodeList;
-    for (_aj = 0, _len25 = _ref16.length; _aj < _len25; _aj++) {
-      fullNode = _ref16[_aj];
+    _ref18 = this.nodeList;
+    for (_aj = 0, _len25 = _ref18.length; _aj < _len25; _aj++) {
+      fullNode = _ref18[_aj];
       fullNode.edgesTo = [];
     }
-    _ref17 = this.padAdjacencies;
-    for (padIdx = _ak = 0, _len26 = _ref17.length; _ak < _len26; padIdx = ++_ak) {
-      padAdjList = _ref17[padIdx];
+    _ref19 = this.padAdjacencies;
+    for (padIdx = _ak = 0, _len26 = _ref19.length; _ak < _len26; padIdx = ++_ak) {
+      padAdjList = _ref19[padIdx];
       fromNode = null;
-      padCircuit = padLedsData[padIdx].length;
-      if (this.dist(padLedsData[padIdx][0], padLedsData[padIdx][padCircuit - 1]) < this.maxDistForFirstAndLastLedsOnCircularPad) {
+      padCircuit = this.padLedsList[padIdx].length;
+      if (this.dist(this.padLedsList[padIdx][0], this.padLedsList[padIdx][padCircuit - 1]) < this.maxDistForFirstAndLastLedsOnCircularPad) {
         padCircuit += 5;
       }
       for (testLedIdx = _al = 0; 0 <= padCircuit ? _al < padCircuit : _al > padCircuit; testLedIdx = 0 <= padCircuit ? ++_al : --_al) {
-        ledIdx = testLedIdx % padLedsData[padIdx].length;
-        ledInfo = padLedsData[padIdx][ledIdx];
-        wrappedRound = testLedIdx >= padLedsData[padIdx].length;
+        ledIdx = testLedIdx % this.padLedsList[padIdx].length;
+        ledInfo = this.padLedsList[padIdx][ledIdx];
+        wrappedRound = testLedIdx >= this.padLedsList[padIdx].length;
         thisNode = null;
-        _ref18 = this.fullNodeList;
-        for (testNodeIdx = _am = 0, _len27 = _ref18.length; _am < _len27; testNodeIdx = ++_am) {
-          testNode = _ref18[testNodeIdx];
-          _ref19 = testNode.leds;
-          for (_an = 0, _len28 = _ref19.length; _an < _len28; _an++) {
-            testNodeLeds = _ref19[_an];
-            if (testNodeLeds[0] === padIdx && testNodeLeds[1] === ledIdx) {
+        _ref20 = this.nodeList;
+        for (testNodeIdx = _am = 0, _len27 = _ref20.length; _am < _len27; testNodeIdx = ++_am) {
+          testNode = _ref20[testNodeIdx];
+          _ref21 = testNode.leds;
+          for (_an = 0, _len28 = _ref21.length; _an < _len28; _an++) {
+            testNodeLeds = _ref21[_an];
+            if (testNodeLeds.padIdx === padIdx && testNodeLeds.ledIdx === ledIdx) {
               thisNode = {
                 nodeIdx: testNodeIdx,
                 padIdx: padIdx,
@@ -360,20 +370,19 @@ this.SpideyGraph = (function() {
           }
         }
         if ((fromNode != null) && (thisNode != null) && thisNode.nodeIdx !== fromNode.nodeIdx) {
-          if (thisNode.nodeIdx === 63 || thisNode.nodeIdx === 83 || thisNode.nodeIdx === 82) {
-            console.log("this node " + thisNode.nodeIdx + " fromNode " + (fromNode != null ? fromNode.nodeIdx : "null") + " padIdx " + padIdx + " ledIdx " + ledIdx);
-          }
-          if (this.fullNodeList[fromNode.nodeIdx].nodeDegree > 1 || this.fullNodeList[thisNode.nodeIdx].nodeDegree > 1) {
-            console.log("fromNode " + fromNode + " thisNode " + thisNode);
+          if (this.nodeList[fromNode.nodeIdx].nodeDegree > 1 || this.nodeList[thisNode.nodeIdx].nodeDegree > 1) {
+            if (this.DEBUG_EDGES != null) {
+              console.log("fromNode " + fromNode + " thisNode " + thisNode);
+            }
             curEdgeIdx = this.edgeList.length;
             edgeLength = Math.abs(fromNode.ledIdx - thisNode.ledIdx);
             if (wrappedRound) {
-              padLedsData[padIdx].length - edgeLength;
+              this.padLedsList[padIdx].length - edgeLength;
             }
-            if (!this.fullNodeList[fromNode.nodeIdx].edgesTo.some(function(el) {
+            if (!this.nodeList[fromNode.nodeIdx].edgesTo.some(function(el) {
               return el.toNodeIdx === thisNode.nodeIdx;
             })) {
-              this.fullNodeList[fromNode.nodeIdx].edgesTo.push({
+              this.nodeList[fromNode.nodeIdx].edgesTo.push({
                 toNodeIdx: thisNode.nodeIdx,
                 edgeIdx: curEdgeIdx,
                 edgeLength: edgeLength
@@ -381,18 +390,18 @@ this.SpideyGraph = (function() {
               edgeInfo = {
                 padIdx: padIdx,
                 fromNodeIdx: fromNode.nodeIdx,
-                fromNode: this.fullNodeList[fromNode.nodeIdx],
+                fromNode: this.nodeList[fromNode.nodeIdx],
                 fromLedIdx: fromNode.ledIdx,
                 toNodeIdx: thisNode.nodeIdx,
-                toNode: this.fullNodeList[thisNode.nodeIdx],
+                toNode: this.nodeList[thisNode.nodeIdx],
                 toLedIdx: thisNode.ledIdx
               };
               this.edgeList.push(edgeInfo);
             }
-            if (!this.fullNodeList[thisNode.nodeIdx].edgesTo.some(function(el) {
+            if (!this.nodeList[thisNode.nodeIdx].edgesTo.some(function(el) {
               return el.toNodeIdx === fromNode.nodeIdx;
             })) {
-              this.fullNodeList[thisNode.nodeIdx].edgesTo.push({
+              this.nodeList[thisNode.nodeIdx].edgesTo.push({
                 toNodeIdx: fromNode.nodeIdx,
                 edgeIdx: curEdgeIdx,
                 edgeLength: edgeLength
@@ -409,73 +418,71 @@ this.SpideyGraph = (function() {
         }
       }
     }
-    _ref20 = this.fullNodeList;
-    for (nodeIdx = _ao = 0, _len29 = _ref20.length; _ao < _len29; nodeIdx = ++_ao) {
-      node = _ref20[nodeIdx];
-      edgeStr = "";
-      _ref21 = node.edgesTo;
-      for (_ap = 0, _len30 = _ref21.length; _ap < _len30; _ap++) {
-        edgeTo = _ref21[_ap];
-        edgeStr += " " + edgeTo.toNodeIdx;
+    if ((this.DEBUG_NODES != null) || (this.DEBUG_EDGES != null)) {
+      _ref22 = this.nodeList;
+      for (nodeIdx = _ao = 0, _len29 = _ref22.length; _ao < _len29; nodeIdx = ++_ao) {
+        node = _ref22[nodeIdx];
+        edgeStr = "";
+        _ref23 = node.edgesTo;
+        for (_ap = 0, _len30 = _ref23.length; _ap < _len30; _ap++) {
+          edgeTo = _ref23[_ap];
+          edgeStr += " " + edgeTo.toNodeIdx;
+        }
+        console.log("Node " + nodeIdx + " edgesToNodes " + edgeStr);
       }
-      console.log("Node " + nodeIdx + " edgesToNodes " + edgeStr);
     }
-    _ref22 = this.fullNodeList;
-    for (nodeIdx = _aq = 0, _len31 = _ref22.length; _aq < _len31; nodeIdx = ++_aq) {
-      node = _ref22[nodeIdx];
-      _ref23 = node.edgesTo;
-      for (_ar = 0, _len32 = _ref23.length; _ar < _len32; _ar++) {
-        edgeTo = _ref23[_ar];
+    _ref24 = this.nodeList;
+    for (nodeIdx = _aq = 0, _len31 = _ref24.length; _aq < _len31; nodeIdx = ++_aq) {
+      node = _ref24[nodeIdx];
+      _ref25 = node.edgesTo;
+      for (_ar = 0, _len32 = _ref25.length; _ar < _len32; _ar++) {
+        edgeTo = _ref25[_ar];
         edgeSteps = [];
-        _ref24 = node.leds;
-        for (_as = 0, _len33 = _ref24.length; _as < _len33; _as++) {
-          nodeLed = _ref24[_as];
-          padIdx = nodeLed[0];
-          _ref25 = this.fullNodeList[edgeTo.toNodeIdx].leds;
-          for (_at = 0, _len34 = _ref25.length; _at < _len34; _at++) {
-            toNodeLed = _ref25[_at];
-            if (padIdx === toNodeLed[0]) {
-              numleds = Math.abs(toNodeLed[1] - nodeLed[1]);
-              ledInc = toNodeLed[1] > nodeLed[1] ? 1 : -1;
-              ledBase = nodeLed[1];
-              if (node.nodeDegree >= 2 && this.fullNodeList[edgeTo.toNodeIdx].nodeDegree >= 2) {
-                wrapRoundNumLeds = this.padLedsData[padIdx].length - numleds;
+        _ref26 = node.leds;
+        for (_as = 0, _len33 = _ref26.length; _as < _len33; _as++) {
+          nodeLed = _ref26[_as];
+          padIdx = nodeLed.padIdx;
+          _ref27 = this.nodeList[edgeTo.toNodeIdx].leds;
+          for (_at = 0, _len34 = _ref27.length; _at < _len34; _at++) {
+            toNodeLed = _ref27[_at];
+            if (padIdx === toNodeLed.padIdx) {
+              numleds = Math.abs(toNodeLed.ledIdx - nodeLed.ledIdx);
+              ledInc = toNodeLed.ledIdx > nodeLed.ledIdx ? 1 : -1;
+              ledBase = nodeLed.ledIdx;
+              if (node.nodeDegree >= 2 && this.nodeList[edgeTo.toNodeIdx].nodeDegree >= 2) {
+                wrapRoundNumLeds = this.padLedsList[padIdx].length - numleds;
                 if (numleds > wrapRoundNumLeds) {
                   numleds = wrapRoundNumLeds;
                   ledInc = -ledInc;
                 }
               }
               if (numleds < edgeTo.edgeLength - 1 && numleds > edgeTo.edgeLength - 10) {
-                numleds = Math.abs(toNodeLed[1] - nodeLed[1]);
+                numleds = Math.abs(toNodeLed.ledIdx - nodeLed.ledIdx);
                 ledInc = -ledInc;
               }
-              if (typeof DEBUG_EDGES !== "undefined" && DEBUG_EDGES !== null) {
-                if (nodeIdx === 31) {
-                  console.log("edgeLengthDiscrepancy from " + nodeIdx + " to " + edgeTo.toNodeIdx + " expected " + edgeTo.edgeLength + " is " + numleds);
-                }
+              if (this.DEBUG_EDGES != null) {
+                console.log("edgeLengthDiscrepancy from " + nodeIdx + " to " + edgeTo.toNodeIdx + " expected " + edgeTo.edgeLength + " is " + numleds);
               }
               edgeStr2 = "";
-              for (i = _au = 0, _ref26 = numleds - 1; 0 <= _ref26 ? _au < _ref26 : _au > _ref26; i = 0 <= _ref26 ? ++_au : --_au) {
+              for (i = _au = 0, _ref28 = numleds - 1; 0 <= _ref28 ? _au < _ref28 : _au > _ref28; i = 0 <= _ref28 ? ++_au : --_au) {
                 if (edgeSteps.length <= i) {
                   edgeSteps[i] = [];
                 }
-                tLedIdx = (ledBase + (i + 1) * ledInc + this.padLedsData[padIdx].length) % this.padLedsData[padIdx].length;
+                tLedIdx = (ledBase + (i + 1) * ledInc + this.padLedsList[padIdx].length) % this.padLedsList[padIdx].length;
                 edgeSteps[i].push({
                   padIdx: padIdx,
                   ledIdx: tLedIdx
                 });
                 edgeStr2 += tLedIdx + ",";
               }
-              if (typeof DEBUG_EDGES !== "undefined" && DEBUG_EDGES !== null) {
-                if (nodeIdx === 31) {
-                  console.log("Edge from " + nodeIdx + " to " + edgeTo.toNodeIdx + " alongPad " + padIdx + " numleds= " + numleds + " fromNodeLed " + nodeLed[1] + " toNodeLed " + toNodeLed[1] + " edgeLeds " + edgeStr2);
-                }
+              if (this.DEBUG_EDGES != null) {
+                console.log("Edge from " + nodeIdx + " to " + edgeTo.toNodeIdx + " alongPad " + padIdx + " numleds= " + numleds + " fromNodeLed " + nodeLed.ledIdx + " toNodeLed " + toNodeLed.ledIdx + " edgeLeds " + edgeStr2);
               }
             }
           }
         }
         edgeTo.edgeList = edgeSteps;
-        if (typeof DEBUG_EDGES !== "undefined" && DEBUG_EDGES !== null) {
+        if (this.DEBUG_EDGES != null) {
           edgeStr3 = "edgeSteps ";
           for (_av = 0, _len35 = edgeSteps.length; _av < _len35; _av++) {
             step = edgeSteps[_av];
@@ -489,15 +496,15 @@ this.SpideyGraph = (function() {
         }
       }
     }
-    colrs = this.genColours(this.fullNodeList.length);
+    colrs = this.genColours(this.nodeList.length);
     colrIdx = 0;
-    console.log("NumNodes = " + this.fullNodeList.length);
-    _ref27 = this.fullNodeList;
-    for (_ax = 0, _len37 = _ref27.length; _ax < _len37; _ax++) {
-      nodeLeds = _ref27[_ax];
+    console.log("NumNodes = " + this.nodeList.length);
+    _ref29 = this.nodeList;
+    for (_ax = 0, _len37 = _ref29.length; _ax < _len37; _ax++) {
+      nodeLeds = _ref29[_ax];
       nodeLeds.colr = colrs[colrIdx++];
     }
-    nodesSvg = this.svg.selectAll("g.nodes").data(this.fullNodeList).enter().append("g").attr("class", "nodes").append("circle").attr("class", "node").attr("cx", function(d) {
+    nodesSvg = this.svg.selectAll("g.nodes").data(this.nodeList).enter().append("g").attr("class", "nodes").append("circle").attr("class", "node").attr("cx", function(d) {
       return d.CofG.pt.x;
     }).attr("cy", function(d) {
       return d.CofG.pt.y;
@@ -515,7 +522,7 @@ this.SpideyGraph = (function() {
     }).attr("stroke", function(d, i) {
       return 'black';
     });
-    nodeLabels = this.svg.selectAll(".nodelabels").data(this.fullNodeList).enter().append("text").attr("class", "nodelabels");
+    nodeLabels = this.svg.selectAll(".nodelabels").data(this.nodeList).enter().append("text").attr("class", "nodelabels");
     nodeLabels.attr("x", function(d) {
       return d.CofG.pt.x + 5;
     }).attr("y", function(d) {
@@ -533,10 +540,10 @@ this.SpideyGraph = (function() {
   };
 
   SpideyGraph.prototype.mousemove = function() {
-    var edgeStep, edgesTo, led, node, nodeIdx, pad, sss, x, y, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _m, _n, _ref, _ref1, _ref2, _ref3, _results;
+    var edgeStep, edgesTo, led, node, nodeIdx, pad, x, y, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _m, _n, _ref, _ref1, _ref2, _ref3, _results;
     x = event.x;
     y = event.y;
-    _ref = this.fullNodeList;
+    _ref = this.nodeList;
     _results = [];
     for (nodeIdx = _i = 0, _len = _ref.length; _i < _len; nodeIdx = ++_i) {
       node = _ref[nodeIdx];
@@ -546,11 +553,7 @@ this.SpideyGraph = (function() {
           y: y
         }
       }) < 10) {
-        sss = "http://fractal:5078/rawcmd/01010b0200010001" + Math.random().toString(16).substr(-6) + Math.random().toString(16).substr(-6);
-        $.get(sss, function(data) {
-          return console.log("Done get");
-        });
-        _ref1 = this.padLedsData;
+        _ref1 = this.padLedsList;
         for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
           pad = _ref1[_j];
           for (_k = 0, _len2 = pad.length; _k < _len2; _k++) {
@@ -566,7 +569,7 @@ this.SpideyGraph = (function() {
             edgeStep = _ref3[_m];
             for (_n = 0, _len5 = edgeStep.length; _n < _len5; _n++) {
               led = edgeStep[_n];
-              this.padLedsData[led.padIdx][led.ledIdx].clr = "#000000";
+              this.padLedsList[led.padIdx][led.ledIdx].clr = "#000000";
             }
           }
         }
@@ -578,6 +581,14 @@ this.SpideyGraph = (function() {
     return _results;
   };
 
+  SpideyGraph.prototype.ledCmd = function() {
+    var sss;
+    sss = "http://fractal:5078/rawcmd/01010b0200010001" + Math.random().toString(16).substr(-6) + Math.random().toString(16).substr(-6);
+    return $.get(sss, function(data) {
+      return console.log(".");
+    });
+  };
+
   SpideyGraph.prototype.stepFn = function() {
     var edgeSteps, led, nodeLed, pad, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2;
     this.steps++;
@@ -585,7 +596,7 @@ this.SpideyGraph = (function() {
       this.steps = 0;
       return false;
     }
-    _ref = this.padLedsData;
+    _ref = this.padLedsList;
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       pad = _ref[_i];
       for (_j = 0, _len1 = pad.length; _j < _len1; _j++) {
@@ -594,30 +605,30 @@ this.SpideyGraph = (function() {
       }
     }
     if (this.atANode) {
-      this.animEdgeIdx = Math.floor(Math.random() * this.fullNodeList[this.animNodeIdx].edgesTo.length);
+      this.animEdgeIdx = Math.floor(Math.random() * this.nodeList[this.animNodeIdx].edgesTo.length);
       this.atANode = false;
       this.animEdgeStep = 0;
-      _ref1 = this.fullNodeList[this.animNodeIdx].leds;
+      _ref1 = this.nodeList[this.animNodeIdx].leds;
       for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
         nodeLed = _ref1[_k];
-        this.padLedsData[nodeLed[0]][nodeLed[1]].clr = "#000000";
+        this.padLedsList[nodeLed.padIdx][nodeLed.ledIdx].clr = "#000000";
       }
-      if (this.fullNodeList[this.animNodeIdx].edgesTo[this.animEdgeIdx].edgeList.length === 0) {
-        this.animNodeIdx = this.fullNodeList[this.animNodeIdx].edgesTo[this.animEdgeIdx].toNodeIdx;
+      if (this.nodeList[this.animNodeIdx].edgesTo[this.animEdgeIdx].edgeList.length === 0) {
+        this.animNodeIdx = this.nodeList[this.animNodeIdx].edgesTo[this.animEdgeIdx].toNodeIdx;
         this.atANode = true;
       }
     } else {
-      edgeSteps = this.fullNodeList[this.animNodeIdx].edgesTo[this.animEdgeIdx].edgeList;
+      edgeSteps = this.nodeList[this.animNodeIdx].edgesTo[this.animEdgeIdx].edgeList;
       if (this.animEdgeStep < edgeSteps.length) {
         _ref2 = edgeSteps[this.animEdgeStep];
         for (_l = 0, _len3 = _ref2.length; _l < _len3; _l++) {
           led = _ref2[_l];
-          this.padLedsData[led.padIdx][led.ledIdx].clr = "#000000";
+          this.padLedsList[led.padIdx][led.ledIdx].clr = "#000000";
         }
       }
       this.animEdgeStep++;
       if (this.animEdgeStep >= edgeSteps.length) {
-        this.animNodeIdx = this.fullNodeList[this.animNodeIdx].edgesTo[this.animEdgeIdx].toNodeIdx;
+        this.animNodeIdx = this.nodeList[this.animNodeIdx].edgesTo[this.animEdgeIdx].toNodeIdx;
         this.atANode = true;
       }
     }

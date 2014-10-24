@@ -60,44 +60,43 @@ class @spideyGeom
 		svg = d3.select("#spideyGeom svg");
 		@padOutlines = svg.selectAll("path");
 
-		pad_centers = @padOutlines[0].map( (d, i) ->
+		pad_centers = @padOutlines[0].map( (d, padIdx) ->
 		    bbox = d.getBBox()
-		    return [bbox.x + bbox.width/2, bbox.y + bbox.height/2, i]
+		    return [bbox.x + bbox.width/2, bbox.y + bbox.height/2, padIdx]
 		    )
 
-		@ledsData = @padOutlines[0].map( (d, i) =>
+		@padLedsList = @padOutlines[0].map (d, padIdx) =>
 			pathLen = d.getTotalLength()
-			wrapRound = @padInfo[i].endPos is -1
-			stripLen = if wrapRound then pathLen else pathLen * (@padInfo[i].endPos - @padInfo[i].startPos)
+			wrapRound = @padInfo[padIdx].endPos is -1
+			stripLen = if wrapRound then pathLen else pathLen * (@padInfo[padIdx].endPos - @padInfo[padIdx].startPos)
 			intv = @ledInterval
-			pathStart = pathLen * @padInfo[i].startPos
-			if @padInfo[i].anticlockwise
+			pathStart = pathLen * @padInfo[padIdx].startPos
+			if @padInfo[padIdx].anticlockwise
 				intv = -@ledInterval
-				pathStart = pathLen * (1 - @padInfo[i].startPos)
+				pathStart = pathLen * (1 - @padInfo[padIdx].startPos)
 			leds = []
 			pPos = pathStart
 			pDist = 0
-			padLedIdx = 0
+			ledIdx = 0
 			while true
 				if pDist >= stripLen
 					break
-				leds.push { pt: d.getPointAtLength(pPos), padIdx: i, padLedIdx: padLedIdx, clr: "#d4d4d4" }
+				leds.push { pt: d.getPointAtLength(pPos), padIdx: padIdx, ledIdx: ledIdx, clr: "#d4d4d4" }
 				pDist += @ledInterval
 				pPos += intv
-				padLedIdx++
+				ledIdx++
 				if wrapRound
 					if pPos > pathLen or pPos < 0
 						pPos = pPos + (if intv > 0 then -pathLen else pathLen)
 			return leds
-			)
 
 		ledCount = 0
-		for padLedsData in @ledsData
-			ledCount += padLedsData.length
+		for padLedData in @padLedsList
+			ledCount += padLedData.length
 		console.log("Total Leds = " + ledCount)
 
 		@padLeds = svg.selectAll("g.padLeds")
-			.data(@ledsData)
+			.data(@padLedsList)
 			.enter()
 			.append("g")
 			.attr("class","padLeds")
@@ -128,7 +127,7 @@ class @spideyGeom
 			.attr("font-size", "20px")
 			.attr("fill", "#DCDCDC")
 
-		@spideyGraph.createGraph(@padOutlines, @ledsData, @ledsSel, svg)
+		@spideyGraph.createGraph(@padOutlines, @padLedsList, @ledsSel, svg)
 
 		# d3.timer(@stepFn)
 		@ledsSel.attr("fill", (d) -> return d.clr)
@@ -140,10 +139,10 @@ class @spideyGeom
 		if @steps > 1000
 			return true
 
-		for padLedsData in @ledsData
+		for padLedData in @padLedsList
 			# clr = '#'+Math.random().toString(16).substr(-6)
-			for ledData in padLedsData
-				ledData.clr = @spideyAnim.getColour(ledData.pt.x, ledData.pt.y, ledData.padIdx, ledData.padLedIdx, @steps)
+			for ledData in padLedData
+				ledData.clr = @spideyAnim.getColour(ledData.pt.x, ledData.pt.y, ledData.padIdx, ledData.ledIdx, @steps)
 
 		@ledsSel.attr("fill", (d) -> return d.clr)
 
