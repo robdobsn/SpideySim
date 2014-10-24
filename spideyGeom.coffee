@@ -1,39 +1,39 @@
 class @spideyGeom
 
-	ledInterval: 7
+	ledInterval: 6.9
 	steps: 0
 	ledUISize: 3
 
 	padInfo: [
-		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #0
+		{ chainIdx: 276, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #0
 		{ chainIdx: 0, startPos: 0.32, endPos: 0.99, hiddenLeds: 5, anticlockwise: true }, #1
 		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #2
 		{ chainIdx: 0, startPos: 0.01, endPos: 0.7, hiddenLeds: 5, anticlockwise: true }, #3
 		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #4
-		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #5
+		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 7, anticlockwise: true }, #5
 		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #6
 		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #7
 		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #8
-		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #9
-		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #10
+		{ chainIdx: 222, startPos: 0, endPos: -1, hiddenLeds: -7, anticlockwise: true }, #9
+		{ chainIdx: 276, startPos: 0, endPos: -1, hiddenLeds: -27, anticlockwise: true }, #10
 		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #11
-		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #12
+		{ chainIdx: 174, startPos: 0, endPos: -1, hiddenLeds: 36, anticlockwise: true }, #12
 		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #13
 		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #14
-		{ chainIdx: 0, startPos: 0.35, endPos: .98, hiddenLeds: 5, anticlockwise: true }, #15
+		{ chainIdx: 323, startPos: 0.36, endPos: 0.98, hiddenLeds: 0, anticlockwise: true }, #15
 		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #16
-		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #17
+		{ chainIdx: 338, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #17
 		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #18
 		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #19
-		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #20
-		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #21
+		{ chainIdx: 94, startPos: 0, endPos: -1, hiddenLeds: -26, anticlockwise: true }, #20
+		{ chainIdx: 132, startPos: 0, endPos: -1, hiddenLeds: -5, anticlockwise: true }, #21
 		{ chainIdx: 0, startPos: 0.2, endPos: 1.0, hiddenLeds: 5, anticlockwise: false }, #22
 		{ chainIdx: 0, startPos: 0.34, endPos: 0.99, hiddenLeds: 5, anticlockwise: false }, #23
 		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #24
 		{ chainIdx: 0, startPos: 0.02, endPos: 0.49, hiddenLeds: 5, anticlockwise: true }, #25
 		{ chainIdx: 0, startPos: 0.27, endPos: 1.0, hiddenLeds: 5, anticlockwise: false }, #26
 		{ chainIdx: 0, startPos: 0.01, endPos: 0.69, hiddenLeds: 5, anticlockwise: true }, #27
-		{ chainIdx: 0, startPos: 0.01, endPos: 0.52, hiddenLeds: 5, anticlockwise: true }, #28
+		{ chainIdx: 308, startPos: 0.01, endPos: 0.51, hiddenLeds: 14, anticlockwise: true }, #28
 		{ chainIdx: 0, startPos: 0.01, endPos: 0.62, hiddenLeds: 5, anticlockwise: true }, #29
 		{ chainIdx: 0, startPos: 0.02, endPos: 0.55, hiddenLeds: 5, anticlockwise: true }, #30
 		{ chainIdx: 0, startPos: 0.38, endPos: 0.99, hiddenLeds: 5, anticlockwise: false }, #31
@@ -42,7 +42,7 @@ class @spideyGeom
 		{ chainIdx: 0, startPos: 0.37, endPos: 0.98, hiddenLeds: 5, anticlockwise: false }, #34
 		{ chainIdx: 0, startPos: 0.01, endPos: 0.7, hiddenLeds: 5, anticlockwise: true }, #35
 		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #36
-		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #37
+		{ chainIdx: 56, startPos: 0, endPos: -1, hiddenLeds: 30, anticlockwise: true }, #37
 		{ chainIdx: 0, startPos: 0.01, endPos: 0.55, hiddenLeds: 5, anticlockwise: true }, #38
 		{ chainIdx: 0, startPos: 0.01, endPos: 0.68, hiddenLeds: 5, anticlockwise: true }, #39
 		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #40
@@ -73,14 +73,20 @@ class @spideyGeom
 			if @padInfo[padIdx].anticlockwise
 				intv = -@ledInterval
 				pathStart = pathLen * (1 - @padInfo[padIdx].startPos)
+			numLeds = Math.floor((stripLen / @ledInterval) + 0.5)
 			leds = []
 			pPos = pathStart
 			pDist = 0
 			ledIdx = 0
+			ledOffset = Math.abs(@padInfo[padIdx].hiddenLeds)
+			ledReversed = (@padInfo[padIdx].hiddenLeds < 0)
 			while true
 				if pDist >= stripLen
 					break
-				chainIdx = @padInfo[padIdx].chainIdx + ledIdx
+				chainIdx = @padInfo[padIdx].chainIdx + (2 * numLeds + (if ledReversed then -ledIdx else ledIdx) - ledOffset) % numLeds
+				if padIdx is 15
+					console.log "striplen " + stripLen + " pathLen " + pathLen + " chainIdx " + @padInfo[padIdx].chainIdx + ", mumleds " + numLeds + ", ledrev " + ledReversed + " ledIdx " + ledIdx + " ledOff " + ledOffset + " rslt " + chainIdx
+				console.log "stripLen " + stripLen
 				leds.push { pt: d.getPointAtLength(pPos), padIdx: padIdx, ledIdx: ledIdx, clr: "#d4d4d4", chainIdx: chainIdx }
 				pDist += @ledInterval
 				pPos += intv

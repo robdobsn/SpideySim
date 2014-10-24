@@ -425,7 +425,7 @@ class @SpideyGraph
 		for pad in @padLedsList
 			for led, ledIdx in pad
 				ledDist = @dist(led, {pt: { x: x, y: y}})
-				if ledDist < 10
+				if ledDist < 20
 					if nearestDist > ledDist
 						nearestDist = ledDist
 						nearestLed = led
@@ -496,7 +496,7 @@ class @SpideyGraph
 
 		sss = "http://fractal:5078/rawcmd/01010b02" + @toHex(showLed.chainIdx,4) + "0001ff0000ff0000"
 		$.get sss, ( data ) ->
-			console.log "sent " + sss
+			console.log "sent " + showLed.chainIdx + " = " + sss
 		return
 		 # + Math.random().toString(16).substr(-6) + Math.random().toString(16).substr(-6)
 
