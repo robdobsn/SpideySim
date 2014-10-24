@@ -61,8 +61,8 @@ class @spideyGeom
 		@padOutlines = svg.selectAll("path");
 
 		pad_centers = @padOutlines[0].map (d, padIdx) ->
-		    bbox = d.getBBox()
-		    return [bbox.x + bbox.width/2, bbox.y + bbox.height/2, padIdx]
+			bbox = d.getBBox()
+			return [bbox.x + bbox.width/2, bbox.y + bbox.height/2, padIdx]
 
 		@padLedsList = @padOutlines[0].map (d, padIdx) =>
 			pathLen = d.getTotalLength()
@@ -81,12 +81,12 @@ class @spideyGeom
 			ledOffset = Math.abs(@padInfo[padIdx].hiddenLeds)
 			ledReversed = (@padInfo[padIdx].hiddenLeds < 0)
 			while true
-				if pDist >= stripLen
+				if pDist >= stripLen - (@ledInterval/2)
 					break
 				chainIdx = @padInfo[padIdx].chainIdx + (2 * numLeds + (if ledReversed then -ledIdx else ledIdx) - ledOffset) % numLeds
-				if padIdx is 15
-					console.log "striplen " + stripLen + " pathLen " + pathLen + " chainIdx " + @padInfo[padIdx].chainIdx + ", mumleds " + numLeds + ", ledrev " + ledReversed + " ledIdx " + ledIdx + " ledOff " + ledOffset + " rslt " + chainIdx
-				console.log "stripLen " + stripLen
+				# if padIdx is 15
+				# 	console.log "striplen " + stripLen + " pathLen " + pathLen + " chainIdx " + @padInfo[padIdx].chainIdx + ", mumleds " + numLeds + ", ledrev " + ledReversed + " ledIdx " + ledIdx + " ledOff " + ledOffset + " rslt " + chainIdx
+				# console.log "stripLen " + stripLen
 				leds.push { pt: d.getPointAtLength(pPos), padIdx: padIdx, ledIdx: ledIdx, clr: "#d4d4d4", chainIdx: chainIdx }
 				pDist += @ledInterval
 				pPos += intv
@@ -100,6 +100,10 @@ class @spideyGeom
 		for padLedsData in @padLedsList
 			ledCount += padLedsData.length
 		console.log("Total Leds = " + ledCount)
+
+		# Colour first LED in each pad black
+		for padLedsData in @padLedsList
+			padLedsData[0].clr = "#000000"
 
 		@padLeds = svg.selectAll("g.padLeds")
 			.data(@padLedsList)
@@ -136,7 +140,7 @@ class @spideyGeom
 		@spideyGraph.createGraph(@padOutlines, @padLedsList, @ledsSel, svg)
 
 		@spideyGraph.colourNodes()
-		@spideyGraph.displayNodes()
+		# @spideyGraph.displayNodes()
 		@spideyGraph.displayEdges()
 		@spideyGraph.labelNodes()
 		# @spideyGraph.animate()

@@ -1,7 +1,7 @@
 class @SpideyGraph
 
-	@DEBUG_EDGES: false
-	@DEBUG_NODES: false
+	DEBUG_EDGES: false
+	DEBUG_NODES: false
 
 	padAdjacencies: []
 	maxDistForPadAdjacency: 300
@@ -31,7 +31,8 @@ class @SpideyGraph
 		for ledId in ledList
 			xSum += @padLedsList[ledId.padIdx][ledId.ledIdx].pt.x
 			ySum += @padLedsList[ledId.padIdx][ledId.ledIdx].pt.y
-		return {pt: { x: xSum/ledList.length, y: ySum/ledList.length } }
+		rlstPt = { x: xSum/ledList.length, y: ySum/ledList.length }
+		return {pt: rlstPt }
 
 	createGraph: (padOutlines, @padLedsList, @ledsSel, @svg) ->
 
@@ -95,8 +96,9 @@ class @SpideyGraph
 						# console.log "Node at " + padIdx + ", " + ledIdx + " adj " + ledAdjList.length
 				else
 					# Check if it's an edge node
-					if ledIdx == 0 or ledIdx == @padLedsList[padIdx].length-1
-					 	edgeNodeLedsList.push ledAdjList
+					if ledIdx is 0 or ledIdx is @padLedsList[padIdx].length-1
+						if ledAdjList.length isnt 0
+						 	edgeNodeLedsList.push ledAdjList
 
 		# Rationalise multi-node list
 		rationalisedMultiNodeLedsList = []
@@ -200,7 +202,7 @@ class @SpideyGraph
 						ledsUsed[nodeLed.uniqId] = { nodeIdx: nodeIdx }
 
 		# Debug - show the node leds
-		if @DEBUG_NODES?
+		if @DEBUG_NODES
 			for testNode, testNodeIdx in @nodeList
 				oStr = testNodeIdx + " nodeLeds "
 				for testNodeLeds in testNode.leds
@@ -241,7 +243,7 @@ class @SpideyGraph
 						break
 				if fromNode? and thisNode? and thisNode.nodeIdx isnt fromNode.nodeIdx
 					if @nodeList[fromNode.nodeIdx].nodeDegree > 1 or @nodeList[thisNode.nodeIdx].nodeDegree > 1
-						if @DEBUG_EDGES?
+						if @DEBUG_EDGES
 							console.log "fromNode " + fromNode + " thisNode " + thisNode
 						curEdgeIdx = @edgeList.length
 						edgeLength = Math.abs(fromNode.ledIdx-thisNode.ledIdx)
@@ -274,7 +276,7 @@ class @SpideyGraph
 						fromNode[key] = val
 
 		# List nodes and edges
-		if @DEBUG_NODES? or @DEBUG_EDGES?
+		if @DEBUG_NODES or @DEBUG_EDGES
 			for node, nodeIdx in @nodeList
 				edgeStr = ""
 				for edgeTo in node.edgesTo
@@ -303,7 +305,7 @@ class @SpideyGraph
 								numleds = Math.abs(toNodeLed.ledIdx - nodeLed.ledIdx)
 								ledInc = -ledInc
 
-							if @DEBUG_EDGES?
+							if @DEBUG_EDGES
 								console.log "edgeLengthDiscrepancy from " + nodeIdx + " to " + edgeTo.toNodeIdx + " expected " + edgeTo.edgeLength + " is " + numleds
 
 							# if numleds < edgeTo.edgeLength - 1 and numleds > edgeTo.edgeLength - 10
@@ -317,12 +319,14 @@ class @SpideyGraph
 								edgeSteps[i].push { padIdx: padIdx, ledIdx: tLedIdx, led: @padLedsList[padIdx][tLedIdx]}
 								edgeStr2 += tLedIdx + ","
 
-							if @DEBUG_EDGES?
+							if @DEBUG_EDGES
+								console.log "Edge from " + nodeIdx + " to " + edgeTo.toNodeIdx + " alongPad " + padIdx + " numleds= " + numleds + " fromNodeLed " + nodeLed.ledIdx + " toNodeLed " + toNodeLed.ledIdx + " edgeLeds " + edgeStr2
+							if nodeIdx is 39 or nodeIdx is 42
 								console.log "Edge from " + nodeIdx + " to " + edgeTo.toNodeIdx + " alongPad " + padIdx + " numleds= " + numleds + " fromNodeLed " + nodeLed.ledIdx + " toNodeLed " + toNodeLed.ledIdx + " edgeLeds " + edgeStr2
 
 				edgeTo.edgeList = edgeSteps
 
-				if @DEBUG_EDGES?
+				if @DEBUG_EDGES
 					edgeStr3 = "edgeSteps "
 					for step in edgeSteps
 						for leds in step
