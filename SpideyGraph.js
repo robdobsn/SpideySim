@@ -5,8 +5,9 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
 this.SpideyGraph = (function() {
   function SpideyGraph() {
     this.stepFn = __bind(this.stepFn, this);
-    this.ledCmd = __bind(this.ledCmd, this);
-    this.mousemove = __bind(this.mousemove, this);
+    this.sendLedCmd = __bind(this.sendLedCmd, this);
+    this.mousemoveEdges = __bind(this.mousemoveEdges, this);
+    this.mousemoveLeds = __bind(this.mousemoveLeds, this);
   }
 
   SpideyGraph.DEBUG_EDGES = false;
@@ -475,7 +476,8 @@ this.SpideyGraph = (function() {
                   tLedIdx = (ledBase + (i + 1) * ledInc + this.padLedsList[padIdx].length) % this.padLedsList[padIdx].length;
                   edgeSteps[i].push({
                     padIdx: padIdx,
-                    ledIdx: tLedIdx
+                    ledIdx: tLedIdx,
+                    led: this.padLedsList[padIdx][tLedIdx]
                   });
                   edgeStr2 += tLedIdx + ",";
                 }
@@ -567,16 +569,69 @@ this.SpideyGraph = (function() {
     return d3.timer(this.stepFn);
   };
 
-  SpideyGraph.prototype.enableMouseMode = function() {
-    return this.svg.on("mousemove", this.mousemove);
+  SpideyGraph.prototype.enableMouseMove = function(dispType) {
+    if (dispType === "edges") {
+      this.svg.on("mousemove", this.mousemoveEdges);
+    } else {
+      this.svg.on("mousemove", this.mousemoveLeds);
+    }
   };
 
-  SpideyGraph.prototype.mousemove = function() {
-    var edgeStep, edgesTo, led, node, nodeIdx, pad, x, y, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _m, _n, _ref, _ref1, _ref2, _ref3, _results;
-    x = event.x;
-    y = event.y;
+  SpideyGraph.prototype.mousemoveLeds = function() {
+    var led, ledDist, ledIdx, nearestDist, nearestLed, pad, x, y, _i, _j, _len, _len1, _ref;
+    x = event.x - 8;
+    y = event.y - 8;
+    nearestLed = null;
+    nearestDist = 1000;
+    _ref = this.padLedsList;
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      pad = _ref[_i];
+      for (ledIdx = _j = 0, _len1 = pad.length; _j < _len1; ledIdx = ++_j) {
+        led = pad[ledIdx];
+        ledDist = this.dist(led, {
+          pt: {
+            x: x,
+            y: y
+          }
+        });
+        if (ledDist < 10) {
+          if (nearestDist > ledDist) {
+            nearestDist = ledDist;
+            nearestLed = led;
+          }
+        }
+      }
+    }
+    if (nearestDist < 1000) {
+      this.selectLed(nearestLed);
+      this.sendLedCmd(nearestLed);
+    }
+  };
+
+  SpideyGraph.prototype.selectLed = function(showLed) {
+    var led, pad, _i, _j, _len, _len1, _ref;
+    _ref = this.padLedsList;
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      pad = _ref[_i];
+      for (_j = 0, _len1 = pad.length; _j < _len1; _j++) {
+        led = pad[_j];
+        if (led === showLed) {
+          led.clr = "#000000";
+        } else {
+          led.clr = "#dcdcdc";
+        }
+      }
+    }
+    return this.ledsSel.attr("fill", function(d) {
+      return d.clr;
+    });
+  };
+
+  SpideyGraph.prototype.mousemoveEdges = function() {
+    var edgeStep, edgesTo, led, node, nodeIdx, pad, x, y, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _m, _n, _ref, _ref1, _ref2, _ref3;
+    x = event.x - 8;
+    y = event.y - 8;
     _ref = this.nodeList;
-    _results = [];
     for (nodeIdx = _i = 0, _len = _ref.length; _i < _len; nodeIdx = ++_i) {
       node = _ref[nodeIdx];
       if (this.dist(node.CofG, {
@@ -606,18 +661,21 @@ this.SpideyGraph = (function() {
           }
         }
       }
-      _results.push(this.ledsSel.attr("fill", function(d) {
+      this.ledsSel.attr("fill", function(d) {
         return d.clr;
-      }));
+      });
     }
-    return _results;
   };
 
-  SpideyGraph.prototype.ledCmd = function() {
+  SpideyGraph.prototype.toHex = function(val, digits) {
+    return ("000000000000000" + val.toString(16)).slice(-digits);
+  };
+
+  SpideyGraph.prototype.sendLedCmd = function(showLed) {
     var sss;
-    sss = "http://fractal:5078/rawcmd/01010b0200010001" + Math.random().toString(16).substr(-6) + Math.random().toString(16).substr(-6);
-    return $.get(sss, function(data) {
-      return console.log(".");
+    sss = "http://fractal:5078/rawcmd/01010b02" + this.toHex(showLed.chainIdx, 4) + "0001ff0000ff0000";
+    $.get(sss, function(data) {
+      return console.log("sent " + sss);
     });
   };
 

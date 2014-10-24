@@ -15,315 +15,270 @@ this.spideyGeom = (function() {
   spideyGeom.prototype.padInfo = [
     {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0,
       endPos: -1,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0.32,
       endPos: 0.99,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0,
       endPos: -1,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0.01,
       endPos: 0.7,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0,
       endPos: -1,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0,
       endPos: -1,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0,
       endPos: -1,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0,
       endPos: -1,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0,
       endPos: -1,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0,
       endPos: -1,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0,
       endPos: -1,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0,
       endPos: -1,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0,
       endPos: -1,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0,
       endPos: -1,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0,
       endPos: -1,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0.35,
       endPos: .98,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0,
       endPos: -1,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0,
       endPos: -1,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0,
       endPos: -1,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0,
       endPos: -1,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0,
       endPos: -1,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0,
       endPos: -1,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0.2,
       endPos: 1.0,
       hiddenLeds: 5,
       anticlockwise: false
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0.34,
       endPos: 0.99,
       hiddenLeds: 5,
       anticlockwise: false
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0,
       endPos: -1,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0.02,
       endPos: 0.49,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0.27,
       endPos: 1.0,
       hiddenLeds: 5,
       anticlockwise: false
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0.01,
       endPos: 0.69,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0.01,
       endPos: 0.52,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0.01,
       endPos: 0.62,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0.02,
       endPos: 0.55,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0.38,
       endPos: 0.99,
       hiddenLeds: 5,
       anticlockwise: false
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0.33,
       endPos: 0.98,
       hiddenLeds: 5,
       anticlockwise: false
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0,
       endPos: -1,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0.37,
       endPos: 0.98,
       hiddenLeds: 5,
       anticlockwise: false
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0.01,
       endPos: 0.7,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0,
       endPos: -1,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0,
       endPos: -1,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0.01,
       endPos: 0.55,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0.01,
       endPos: 0.68,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0,
       endPos: -1,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0.01,
       endPos: 0.7,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0.01,
       endPos: 0.76,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0.2,
       endPos: 0.67,
       hiddenLeds: 5,
       anticlockwise: true
     }, {
       chainIdx: 0,
-      stripIdx: 0,
       startPos: 0.01,
       endPos: 0.65,
       hiddenLeds: 5,
@@ -344,7 +299,7 @@ this.spideyGeom = (function() {
     });
     this.padLedsList = this.padOutlines[0].map((function(_this) {
       return function(d, padIdx) {
-        var intv, ledIdx, leds, pDist, pPos, pathLen, pathStart, stripLen, wrapRound;
+        var chainIdx, intv, ledIdx, leds, pDist, pPos, pathLen, pathStart, stripLen, wrapRound;
         pathLen = d.getTotalLength();
         wrapRound = _this.padInfo[padIdx].endPos === -1;
         stripLen = wrapRound ? pathLen : pathLen * (_this.padInfo[padIdx].endPos - _this.padInfo[padIdx].startPos);
@@ -362,11 +317,13 @@ this.spideyGeom = (function() {
           if (pDist >= stripLen) {
             break;
           }
+          chainIdx = _this.padInfo[padIdx].chainIdx + ledIdx;
           leds.push({
             pt: d.getPointAtLength(pPos),
             padIdx: padIdx,
             ledIdx: ledIdx,
-            clr: "#d4d4d4"
+            clr: "#d4d4d4",
+            chainIdx: chainIdx
           });
           pDist += _this.ledInterval;
           pPos += intv;
@@ -411,7 +368,7 @@ this.spideyGeom = (function() {
     this.spideyGraph.displayNodes();
     this.spideyGraph.displayEdges();
     this.spideyGraph.labelNodes();
-    this.spideyGraph.animate();
+    this.spideyGraph.enableMouseMove("leds");
     this.ledsSel.attr("fill", function(d) {
       return d.clr;
     });

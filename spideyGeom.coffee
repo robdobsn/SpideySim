@@ -5,51 +5,51 @@ class @spideyGeom
 	ledUISize: 3
 
 	padInfo: [
-		{ chainIdx: 0, stripIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #0
-		{ chainIdx: 0, stripIdx: 0, startPos: 0.32, endPos: 0.99, hiddenLeds: 5, anticlockwise: true }, #1
-		{ chainIdx: 0, stripIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #2
-		{ chainIdx: 0, stripIdx: 0, startPos: 0.01, endPos: 0.7, hiddenLeds: 5, anticlockwise: true }, #3
-		{ chainIdx: 0, stripIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #4
-		{ chainIdx: 0, stripIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #5
-		{ chainIdx: 0, stripIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #6
-		{ chainIdx: 0, stripIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #7
-		{ chainIdx: 0, stripIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #8
-		{ chainIdx: 0, stripIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #9
-		{ chainIdx: 0, stripIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #10
-		{ chainIdx: 0, stripIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #11
-		{ chainIdx: 0, stripIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #12
-		{ chainIdx: 0, stripIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #13
-		{ chainIdx: 0, stripIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #14
-		{ chainIdx: 0, stripIdx: 0, startPos: 0.35, endPos: .98, hiddenLeds: 5, anticlockwise: true }, #15
-		{ chainIdx: 0, stripIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #16
-		{ chainIdx: 0, stripIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #17
-		{ chainIdx: 0, stripIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #18
-		{ chainIdx: 0, stripIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #19
-		{ chainIdx: 0, stripIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #20
-		{ chainIdx: 0, stripIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #21
-		{ chainIdx: 0, stripIdx: 0, startPos: 0.2, endPos: 1.0, hiddenLeds: 5, anticlockwise: false }, #22
-		{ chainIdx: 0, stripIdx: 0, startPos: 0.34, endPos: 0.99, hiddenLeds: 5, anticlockwise: false }, #23
-		{ chainIdx: 0, stripIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #24
-		{ chainIdx: 0, stripIdx: 0, startPos: 0.02, endPos: 0.49, hiddenLeds: 5, anticlockwise: true }, #25
-		{ chainIdx: 0, stripIdx: 0, startPos: 0.27, endPos: 1.0, hiddenLeds: 5, anticlockwise: false }, #26
-		{ chainIdx: 0, stripIdx: 0, startPos: 0.01, endPos: 0.69, hiddenLeds: 5, anticlockwise: true }, #27
-		{ chainIdx: 0, stripIdx: 0, startPos: 0.01, endPos: 0.52, hiddenLeds: 5, anticlockwise: true }, #28
-		{ chainIdx: 0, stripIdx: 0, startPos: 0.01, endPos: 0.62, hiddenLeds: 5, anticlockwise: true }, #29
-		{ chainIdx: 0, stripIdx: 0, startPos: 0.02, endPos: 0.55, hiddenLeds: 5, anticlockwise: true }, #30
-		{ chainIdx: 0, stripIdx: 0, startPos: 0.38, endPos: 0.99, hiddenLeds: 5, anticlockwise: false }, #31
-		{ chainIdx: 0, stripIdx: 0, startPos: 0.33, endPos: 0.98, hiddenLeds: 5, anticlockwise: false }, #32
-		{ chainIdx: 0, stripIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #33
-		{ chainIdx: 0, stripIdx: 0, startPos: 0.37, endPos: 0.98, hiddenLeds: 5, anticlockwise: false }, #34
-		{ chainIdx: 0, stripIdx: 0, startPos: 0.01, endPos: 0.7, hiddenLeds: 5, anticlockwise: true }, #35
-		{ chainIdx: 0, stripIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #36
-		{ chainIdx: 0, stripIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #37
-		{ chainIdx: 0, stripIdx: 0, startPos: 0.01, endPos: 0.55, hiddenLeds: 5, anticlockwise: true }, #38
-		{ chainIdx: 0, stripIdx: 0, startPos: 0.01, endPos: 0.68, hiddenLeds: 5, anticlockwise: true }, #39
-		{ chainIdx: 0, stripIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #40
-		{ chainIdx: 0, stripIdx: 0, startPos: 0.01, endPos: 0.7, hiddenLeds: 5, anticlockwise: true }, #41
-		{ chainIdx: 0, stripIdx: 0, startPos: 0.01, endPos: 0.76, hiddenLeds: 5, anticlockwise: true }, #42
-		{ chainIdx: 0, stripIdx: 0, startPos: 0.2, endPos: 0.67, hiddenLeds: 5, anticlockwise: true }, #43
-		{ chainIdx: 0, stripIdx: 0, startPos: 0.01, endPos: 0.65, hiddenLeds: 5, anticlockwise: true }, #44
+		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #0
+		{ chainIdx: 0, startPos: 0.32, endPos: 0.99, hiddenLeds: 5, anticlockwise: true }, #1
+		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #2
+		{ chainIdx: 0, startPos: 0.01, endPos: 0.7, hiddenLeds: 5, anticlockwise: true }, #3
+		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #4
+		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #5
+		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #6
+		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #7
+		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #8
+		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #9
+		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #10
+		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #11
+		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #12
+		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #13
+		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #14
+		{ chainIdx: 0, startPos: 0.35, endPos: .98, hiddenLeds: 5, anticlockwise: true }, #15
+		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #16
+		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #17
+		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #18
+		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #19
+		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #20
+		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #21
+		{ chainIdx: 0, startPos: 0.2, endPos: 1.0, hiddenLeds: 5, anticlockwise: false }, #22
+		{ chainIdx: 0, startPos: 0.34, endPos: 0.99, hiddenLeds: 5, anticlockwise: false }, #23
+		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #24
+		{ chainIdx: 0, startPos: 0.02, endPos: 0.49, hiddenLeds: 5, anticlockwise: true }, #25
+		{ chainIdx: 0, startPos: 0.27, endPos: 1.0, hiddenLeds: 5, anticlockwise: false }, #26
+		{ chainIdx: 0, startPos: 0.01, endPos: 0.69, hiddenLeds: 5, anticlockwise: true }, #27
+		{ chainIdx: 0, startPos: 0.01, endPos: 0.52, hiddenLeds: 5, anticlockwise: true }, #28
+		{ chainIdx: 0, startPos: 0.01, endPos: 0.62, hiddenLeds: 5, anticlockwise: true }, #29
+		{ chainIdx: 0, startPos: 0.02, endPos: 0.55, hiddenLeds: 5, anticlockwise: true }, #30
+		{ chainIdx: 0, startPos: 0.38, endPos: 0.99, hiddenLeds: 5, anticlockwise: false }, #31
+		{ chainIdx: 0, startPos: 0.33, endPos: 0.98, hiddenLeds: 5, anticlockwise: false }, #32
+		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #33
+		{ chainIdx: 0, startPos: 0.37, endPos: 0.98, hiddenLeds: 5, anticlockwise: false }, #34
+		{ chainIdx: 0, startPos: 0.01, endPos: 0.7, hiddenLeds: 5, anticlockwise: true }, #35
+		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #36
+		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #37
+		{ chainIdx: 0, startPos: 0.01, endPos: 0.55, hiddenLeds: 5, anticlockwise: true }, #38
+		{ chainIdx: 0, startPos: 0.01, endPos: 0.68, hiddenLeds: 5, anticlockwise: true }, #39
+		{ chainIdx: 0, startPos: 0, endPos: -1, hiddenLeds: 5, anticlockwise: true }, #40
+		{ chainIdx: 0, startPos: 0.01, endPos: 0.7, hiddenLeds: 5, anticlockwise: true }, #41
+		{ chainIdx: 0, startPos: 0.01, endPos: 0.76, hiddenLeds: 5, anticlockwise: true }, #42
+		{ chainIdx: 0, startPos: 0.2, endPos: 0.67, hiddenLeds: 5, anticlockwise: true }, #43
+		{ chainIdx: 0, startPos: 0.01, endPos: 0.65, hiddenLeds: 5, anticlockwise: true }, #44
 	]
 
 	init: ->
@@ -60,10 +60,9 @@ class @spideyGeom
 		svg = d3.select("#spideyGeom svg");
 		@padOutlines = svg.selectAll("path");
 
-		pad_centers = @padOutlines[0].map( (d, padIdx) ->
+		pad_centers = @padOutlines[0].map (d, padIdx) ->
 		    bbox = d.getBBox()
 		    return [bbox.x + bbox.width/2, bbox.y + bbox.height/2, padIdx]
-		    )
 
 		@padLedsList = @padOutlines[0].map (d, padIdx) =>
 			pathLen = d.getTotalLength()
@@ -81,7 +80,8 @@ class @spideyGeom
 			while true
 				if pDist >= stripLen
 					break
-				leds.push { pt: d.getPointAtLength(pPos), padIdx: padIdx, ledIdx: ledIdx, clr: "#d4d4d4" }
+				chainIdx = @padInfo[padIdx].chainIdx + ledIdx
+				leds.push { pt: d.getPointAtLength(pPos), padIdx: padIdx, ledIdx: ledIdx, clr: "#d4d4d4", chainIdx: chainIdx }
 				pDist += @ledInterval
 				pPos += intv
 				ledIdx++
@@ -133,7 +133,8 @@ class @spideyGeom
 		@spideyGraph.displayNodes()
 		@spideyGraph.displayEdges()
 		@spideyGraph.labelNodes()
-		@spideyGraph.animate()
+		# @spideyGraph.animate()
+		@spideyGraph.enableMouseMove("leds")
 
 		# d3.timer(@stepFn)
 		@ledsSel.attr("fill", (d) -> return d.clr)

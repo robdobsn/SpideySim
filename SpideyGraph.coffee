@@ -314,7 +314,7 @@ class @SpideyGraph
 								if edgeSteps.length <= i
 									edgeSteps[i] = []
 								tLedIdx = (ledBase+(i+1)*ledInc+@padLedsList[padIdx].length)%@padLedsList[padIdx].length
-								edgeSteps[i].push { padIdx: padIdx, ledIdx: tLedIdx }
+								edgeSteps[i].push { padIdx: padIdx, ledIdx: tLedIdx, led: @padLedsList[padIdx][tLedIdx]}
 								edgeStr2 += tLedIdx + ","
 
 							if @DEBUG_EDGES?
@@ -410,12 +410,42 @@ class @SpideyGraph
 		@steps = 0
 		d3.timer(@stepFn)
 
-	enableMouseMode: ->
-		@svg.on "mousemove", @mousemove
+	enableMouseMove: (dispType) ->
+		if dispType is "edges"
+			@svg.on "mousemove", @mousemoveEdges
+		else
+			@svg.on "mousemove", @mousemoveLeds
+		return
 
-	mousemove: =>
-		x = event.x
-		y = event.y
+	mousemoveLeds: =>
+		x = event.x - 8
+		y = event.y - 8
+		nearestLed = null
+		nearestDist = 1000
+		for pad in @padLedsList
+			for led, ledIdx in pad
+				ledDist = @dist(led, {pt: { x: x, y: y}})
+				if ledDist < 10
+					if nearestDist > ledDist
+						nearestDist = ledDist
+						nearestLed = led
+		if nearestDist < 1000
+			@selectLed(nearestLed)
+			@sendLedCmd(nearestLed)
+		return
+
+	selectLed: (showLed) ->
+		for pad in @padLedsList
+			for led in pad
+				if led is showLed
+					led.clr = "#000000"
+				else
+					led.clr = "#dcdcdc"
+		@ledsSel.attr("fill", (d) -> return d.clr)
+
+	mousemoveEdges: =>
+		x = event.x - 8
+		y = event.y - 8
 		for node, nodeIdx in @nodeList
 			if @dist(node.CofG, {pt: { x: x, y: y}}) < 10
 				for pad in @padLedsList
@@ -427,7 +457,7 @@ class @SpideyGraph
 							@padLedsList[led.padIdx][led.ledIdx].clr = "#000000"
 	 
 			@ledsSel.attr("fill", (d) -> return d.clr)
-
+		return
 
 				# # console.log "MouseOver " + nodeIdx
 				# tmpEdgeList = []
@@ -459,10 +489,16 @@ class @SpideyGraph
 
 			 	# break
 
-	ledCmd: () =>
-		sss = "http://fractal:5078/rawcmd/01010b0200010001" + Math.random().toString(16).substr(-6) + Math.random().toString(16).substr(-6)
+	toHex: (val, digits) ->
+		 return ("000000000000000" + val.toString(16)).slice(-digits);
+
+	sendLedCmd: (showLed) =>
+
+		sss = "http://fractal:5078/rawcmd/01010b02" + @toHex(showLed.chainIdx,4) + "0001ff0000ff0000"
 		$.get sss, ( data ) ->
-			console.log "."
+			console.log "sent " + sss
+		return
+		 # + Math.random().toString(16).substr(-6) + Math.random().toString(16).substr(-6)
 
 	stepFn: =>
 
