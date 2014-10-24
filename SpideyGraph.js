@@ -63,7 +63,7 @@ this.SpideyGraph = (function() {
   };
 
   SpideyGraph.prototype.createGraph = function(padOutlines, padLedsList, ledsSel, svg) {
-    var adjFound, alreadInList, colrIdx, colrs, curCofG, curEdgeIdx, discardFree, distFromCofGtoLed, edgeInfo, edgeLength, edgeNodeLeds, edgeNodeLedsList, edgeSteps, edgeStr, edgeStr2, edgeStr3, edgeTo, edgesSvg, freeLeds, fromNode, fullNode, i, key, led, ledAdjList, ledBase, ledDist, ledDistances, ledIdx, ledInc, ledInfo, ledPadFound, ledUniqPads, leds, ledsModified, ledsUsed, listMerged, multiNodeLeds, multiNodeLedsIdx, multiNodeLedsList, newList, node, nodeAlreadyInList, nodeIdx, nodeInfo, nodeLabels, nodeLed, nodeLeds, nodesSvg, numleds, oStr, otherLedDist, otherLedIdx, otherLedInfo, otherLedUse, otherNodeLed, otherNodeLedsIdx, otherPadIdx, otherPadLedsInfo, padAdjList, padCircuit, padIdx, padLedsInfo, rationalisedEdgeNodeLedsList, rationalisedMultiNodeLedsList, step, tLedIdx, testLedIdx, testNode, testNodeIdx, testNodeLeds, thisNode, toNodeLed, val, wrapRoundNumLeds, wrappedRound, _aa, _ab, _ac, _ad, _ae, _af, _ag, _ah, _ai, _aj, _ak, _al, _am, _an, _ao, _ap, _aq, _ar, _as, _at, _au, _av, _aw, _ax, _i, _j, _k, _l, _len, _len1, _len10, _len11, _len12, _len13, _len14, _len15, _len16, _len17, _len18, _len19, _len2, _len20, _len21, _len22, _len23, _len24, _len25, _len26, _len27, _len28, _len29, _len3, _len30, _len31, _len32, _len33, _len34, _len35, _len36, _len37, _len4, _len5, _len6, _len7, _len8, _len9, _m, _n, _o, _p, _q, _r, _ref, _ref1, _ref10, _ref11, _ref12, _ref13, _ref14, _ref15, _ref16, _ref17, _ref18, _ref19, _ref2, _ref20, _ref21, _ref22, _ref23, _ref24, _ref25, _ref26, _ref27, _ref28, _ref29, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9, _s, _t, _u, _v, _w, _x, _y, _z;
+    var adjFound, alreadInList, curCofG, curEdgeIdx, discardFree, distFromCofGtoLed, edgeInfo, edgeLength, edgeNodeLeds, edgeNodeLedsList, edgeSteps, edgeStr, edgeStr2, edgeStr3, edgeTo, freeLeds, fromNode, fullNode, i, key, led, ledAdjList, ledBase, ledDist, ledDistances, ledIdx, ledInc, ledInfo, ledPadFound, ledUniqPads, leds, ledsModified, ledsUsed, listMerged, multiNodeLeds, multiNodeLedsIdx, multiNodeLedsList, newList, node, nodeAlreadyInList, nodeIdx, nodeInfo, nodeLed, nodeLeds, numleds, oStr, otherLedDist, otherLedIdx, otherLedInfo, otherLedUse, otherNodeLed, otherNodeLedsIdx, otherPadIdx, otherPadLedsInfo, padAdjList, padCircuit, padIdx, padLedsInfo, rationalisedEdgeNodeLedsList, rationalisedMultiNodeLedsList, step, tLedIdx, testLedIdx, testNode, testNodeIdx, testNodeLeds, thisNode, toNodeLed, val, wrapRoundNumLeds, wrappedRound, _aa, _ab, _ac, _ad, _ae, _af, _ag, _ah, _ai, _aj, _ak, _al, _am, _an, _ao, _ap, _aq, _i, _j, _k, _l, _len, _len1, _len10, _len11, _len12, _len13, _len14, _len15, _len16, _len17, _len18, _len19, _len2, _len20, _len21, _len22, _len23, _len24, _len25, _len26, _len27, _len28, _len29, _len3, _len30, _len31, _len4, _len5, _len6, _len7, _len8, _len9, _m, _n, _o, _p, _q, _r, _ref, _ref1, _ref10, _ref11, _ref12, _ref13, _ref14, _ref15, _ref16, _ref17, _ref18, _ref19, _ref2, _ref20, _ref21, _ref22, _ref23, _ref24, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9, _results, _s, _t, _u, _v, _w, _x, _y, _z;
     this.padLedsList = padLedsList;
     this.ledsSel = ledsSel;
     this.svg = svg;
@@ -432,86 +432,108 @@ this.SpideyGraph = (function() {
       }
     }
     _ref24 = this.nodeList;
+    _results = [];
     for (nodeIdx = _aq = 0, _len31 = _ref24.length; _aq < _len31; nodeIdx = ++_aq) {
       node = _ref24[nodeIdx];
-      _ref25 = node.edgesTo;
-      for (_ar = 0, _len32 = _ref25.length; _ar < _len32; _ar++) {
-        edgeTo = _ref25[_ar];
-        edgeSteps = [];
-        _ref26 = node.leds;
-        for (_as = 0, _len33 = _ref26.length; _as < _len33; _as++) {
-          nodeLed = _ref26[_as];
-          padIdx = nodeLed.padIdx;
-          _ref27 = this.nodeList[edgeTo.toNodeIdx].leds;
-          for (_at = 0, _len34 = _ref27.length; _at < _len34; _at++) {
-            toNodeLed = _ref27[_at];
-            if (padIdx === toNodeLed.padIdx) {
-              numleds = Math.abs(toNodeLed.ledIdx - nodeLed.ledIdx);
-              ledInc = toNodeLed.ledIdx > nodeLed.ledIdx ? 1 : -1;
-              ledBase = nodeLed.ledIdx;
-              if (node.nodeDegree >= 2 && this.nodeList[edgeTo.toNodeIdx].nodeDegree >= 2) {
-                wrapRoundNumLeds = this.padLedsList[padIdx].length - numleds;
-                if (numleds > wrapRoundNumLeds) {
-                  numleds = wrapRoundNumLeds;
+      _results.push((function() {
+        var _ar, _as, _at, _au, _av, _aw, _len32, _len33, _len34, _len35, _len36, _ref25, _ref26, _ref27, _ref28, _results1;
+        _ref25 = node.edgesTo;
+        _results1 = [];
+        for (_ar = 0, _len32 = _ref25.length; _ar < _len32; _ar++) {
+          edgeTo = _ref25[_ar];
+          edgeSteps = [];
+          _ref26 = node.leds;
+          for (_as = 0, _len33 = _ref26.length; _as < _len33; _as++) {
+            nodeLed = _ref26[_as];
+            padIdx = nodeLed.padIdx;
+            _ref27 = this.nodeList[edgeTo.toNodeIdx].leds;
+            for (_at = 0, _len34 = _ref27.length; _at < _len34; _at++) {
+              toNodeLed = _ref27[_at];
+              if (padIdx === toNodeLed.padIdx) {
+                numleds = Math.abs(toNodeLed.ledIdx - nodeLed.ledIdx);
+                ledInc = toNodeLed.ledIdx > nodeLed.ledIdx ? 1 : -1;
+                ledBase = nodeLed.ledIdx;
+                if (node.nodeDegree >= 2 && this.nodeList[edgeTo.toNodeIdx].nodeDegree >= 2) {
+                  wrapRoundNumLeds = this.padLedsList[padIdx].length - numleds;
+                  if (numleds > wrapRoundNumLeds) {
+                    numleds = wrapRoundNumLeds;
+                    ledInc = -ledInc;
+                  }
+                }
+                if (numleds < edgeTo.edgeLength - 1 && numleds > edgeTo.edgeLength - 10) {
+                  numleds = Math.abs(toNodeLed.ledIdx - nodeLed.ledIdx);
                   ledInc = -ledInc;
                 }
-              }
-              if (numleds < edgeTo.edgeLength - 1 && numleds > edgeTo.edgeLength - 10) {
-                numleds = Math.abs(toNodeLed.ledIdx - nodeLed.ledIdx);
-                ledInc = -ledInc;
-              }
-              if (this.DEBUG_EDGES != null) {
-                console.log("edgeLengthDiscrepancy from " + nodeIdx + " to " + edgeTo.toNodeIdx + " expected " + edgeTo.edgeLength + " is " + numleds);
-              }
-              edgeStr2 = "";
-              for (i = _au = 0, _ref28 = numleds - 1; 0 <= _ref28 ? _au < _ref28 : _au > _ref28; i = 0 <= _ref28 ? ++_au : --_au) {
-                if (edgeSteps.length <= i) {
-                  edgeSteps[i] = [];
+                if (this.DEBUG_EDGES != null) {
+                  console.log("edgeLengthDiscrepancy from " + nodeIdx + " to " + edgeTo.toNodeIdx + " expected " + edgeTo.edgeLength + " is " + numleds);
                 }
-                tLedIdx = (ledBase + (i + 1) * ledInc + this.padLedsList[padIdx].length) % this.padLedsList[padIdx].length;
-                edgeSteps[i].push({
-                  padIdx: padIdx,
-                  ledIdx: tLedIdx
-                });
-                edgeStr2 += tLedIdx + ",";
-              }
-              if (this.DEBUG_EDGES != null) {
-                console.log("Edge from " + nodeIdx + " to " + edgeTo.toNodeIdx + " alongPad " + padIdx + " numleds= " + numleds + " fromNodeLed " + nodeLed.ledIdx + " toNodeLed " + toNodeLed.ledIdx + " edgeLeds " + edgeStr2);
+                edgeStr2 = "";
+                for (i = _au = 0, _ref28 = numleds - 1; 0 <= _ref28 ? _au < _ref28 : _au > _ref28; i = 0 <= _ref28 ? ++_au : --_au) {
+                  if (edgeSteps.length <= i) {
+                    edgeSteps[i] = [];
+                  }
+                  tLedIdx = (ledBase + (i + 1) * ledInc + this.padLedsList[padIdx].length) % this.padLedsList[padIdx].length;
+                  edgeSteps[i].push({
+                    padIdx: padIdx,
+                    ledIdx: tLedIdx
+                  });
+                  edgeStr2 += tLedIdx + ",";
+                }
+                if (this.DEBUG_EDGES != null) {
+                  console.log("Edge from " + nodeIdx + " to " + edgeTo.toNodeIdx + " alongPad " + padIdx + " numleds= " + numleds + " fromNodeLed " + nodeLed.ledIdx + " toNodeLed " + toNodeLed.ledIdx + " edgeLeds " + edgeStr2);
+                }
               }
             }
           }
-        }
-        edgeTo.edgeList = edgeSteps;
-        if (this.DEBUG_EDGES != null) {
-          edgeStr3 = "edgeSteps ";
-          for (_av = 0, _len35 = edgeSteps.length; _av < _len35; _av++) {
-            step = edgeSteps[_av];
-            for (_aw = 0, _len36 = step.length; _aw < _len36; _aw++) {
-              leds = step[_aw];
-              edgeStr3 += leds.padIdx + "." + leds.ledIdx + " ";
+          edgeTo.edgeList = edgeSteps;
+          if (this.DEBUG_EDGES != null) {
+            edgeStr3 = "edgeSteps ";
+            for (_av = 0, _len35 = edgeSteps.length; _av < _len35; _av++) {
+              step = edgeSteps[_av];
+              for (_aw = 0, _len36 = step.length; _aw < _len36; _aw++) {
+                leds = step[_aw];
+                edgeStr3 += leds.padIdx + "." + leds.ledIdx + " ";
+              }
+              edgeStr3 += ", ";
             }
-            edgeStr3 += ", ";
+            _results1.push(console.log(edgeStr3));
+          } else {
+            _results1.push(void 0);
           }
-          console.log(edgeStr3);
         }
-      }
+        return _results1;
+      }).call(this));
     }
+    return _results;
+  };
+
+  SpideyGraph.prototype.colourNodes = function() {
+    var colrIdx, colrs, nodeLeds, _i, _len, _ref, _results;
     colrs = this.genColours(this.nodeList.length);
     colrIdx = 0;
-    console.log("NumNodes = " + this.nodeList.length);
-    _ref29 = this.nodeList;
-    for (_ax = 0, _len37 = _ref29.length; _ax < _len37; _ax++) {
-      nodeLeds = _ref29[_ax];
-      nodeLeds.colr = colrs[colrIdx++];
+    _ref = this.nodeList;
+    _results = [];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      nodeLeds = _ref[_i];
+      _results.push(nodeLeds.colr = colrs[colrIdx++]);
     }
-    nodesSvg = this.svg.selectAll("g.nodes").data(this.nodeList).enter().append("g").attr("class", "nodes").append("circle").attr("class", "node").attr("cx", function(d) {
+    return _results;
+  };
+
+  SpideyGraph.prototype.displayNodes = function() {
+    var nodesSvg;
+    return nodesSvg = this.svg.selectAll("g.nodes").data(this.nodeList).enter().append("g").attr("class", "nodes").append("circle").attr("class", "node").attr("cx", function(d) {
       return d.CofG.pt.x;
     }).attr("cy", function(d) {
       return d.CofG.pt.y;
     }).attr("r", 5).attr("fill", function(d, i) {
       return d.colr;
     });
-    edgesSvg = this.svg.selectAll("g.edges").data(this.edgeList).enter().append("g").attr("class", "edges").append("line").attr("class", "edge").attr("x1", function(d) {
+  };
+
+  SpideyGraph.prototype.displayEdges = function() {
+    var edgesSvg;
+    return edgesSvg = this.svg.selectAll("g.edges").data(this.edgeList).enter().append("g").attr("class", "edges").append("line").attr("class", "edge").attr("x1", function(d) {
       return d.fromNode.CofG.pt.x;
     }).attr("y1", function(d) {
       return d.fromNode.CofG.pt.y;
@@ -522,20 +544,30 @@ this.SpideyGraph = (function() {
     }).attr("stroke", function(d, i) {
       return 'black';
     });
+  };
+
+  SpideyGraph.prototype.labelNodes = function() {
+    var nodeLabels;
     nodeLabels = this.svg.selectAll(".nodelabels").data(this.nodeList).enter().append("text").attr("class", "nodelabels");
-    nodeLabels.attr("x", function(d) {
+    return nodeLabels.attr("x", function(d) {
       return d.CofG.pt.x + 5;
     }).attr("y", function(d) {
       return d.CofG.pt.y - 2;
     }).text(function(d) {
       return d.nodeId;
     }).attr("font-family", "sans-serif").attr("font-size", "10px").attr("fill", "#005050");
+  };
+
+  SpideyGraph.prototype.animate = function() {
     this.animNodeIdx = 34;
     this.animEdgeIdx = 0;
     this.animEdgeStep = 0;
     this.atANode = true;
     this.steps = 0;
-    d3.timer(this.stepFn);
+    return d3.timer(this.stepFn);
+  };
+
+  SpideyGraph.prototype.enableMouseMode = function() {
     return this.svg.on("mousemove", this.mousemove);
   };
 

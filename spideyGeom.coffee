@@ -91,8 +91,8 @@ class @spideyGeom
 			return leds
 
 		ledCount = 0
-		for padLedData in @padLedsList
-			ledCount += padLedData.length
+		for padLedsData in @padLedsList
+			ledCount += padLedsData.length
 		console.log("Total Leds = " + ledCount)
 
 		@padLeds = svg.selectAll("g.padLeds")
@@ -129,6 +129,12 @@ class @spideyGeom
 
 		@spideyGraph.createGraph(@padOutlines, @padLedsList, @ledsSel, svg)
 
+		@spideyGraph.colourNodes()
+		@spideyGraph.displayNodes()
+		@spideyGraph.displayEdges()
+		@spideyGraph.labelNodes()
+		@spideyGraph.animate()
+
 		# d3.timer(@stepFn)
 		@ledsSel.attr("fill", (d) -> return d.clr)
 
@@ -139,9 +145,9 @@ class @spideyGeom
 		if @steps > 1000
 			return true
 
-		for padLedData in @padLedsList
+		for padLedsData in @padLedsList
 			# clr = '#'+Math.random().toString(16).substr(-6)
-			for ledData in padLedData
+			for ledData in padLedsData
 				ledData.clr = @spideyAnim.getColour(ledData.pt.x, ledData.pt.y, ledData.padIdx, ledData.ledIdx, @steps)
 
 		@ledsSel.attr("fill", (d) -> return d.clr)

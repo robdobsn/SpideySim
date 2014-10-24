@@ -332,7 +332,7 @@ this.spideyGeom = (function() {
   ];
 
   spideyGeom.prototype.init = function() {
-    var ledCount, padLedData, pad_centers, svg, text, _i, _len, _ref;
+    var ledCount, padLedsData, pad_centers, svg, text, _i, _len, _ref;
     this.spideyAnim = new SpideyAnimation();
     this.spideyGraph = new SpideyGraph();
     svg = d3.select("#spideyGeom svg");
@@ -383,8 +383,8 @@ this.spideyGeom = (function() {
     ledCount = 0;
     _ref = this.padLedsList;
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      padLedData = _ref[_i];
-      ledCount += padLedData.length;
+      padLedsData = _ref[_i];
+      ledCount += padLedsData.length;
     }
     console.log("Total Leds = " + ledCount);
     this.padLeds = svg.selectAll("g.padLeds").data(this.padLedsList).enter().append("g").attr("class", "padLeds");
@@ -407,22 +407,27 @@ this.spideyGeom = (function() {
       return d[2];
     }).attr("font-family", "sans-serif").attr("font-size", "20px").attr("fill", "#DCDCDC");
     this.spideyGraph.createGraph(this.padOutlines, this.padLedsList, this.ledsSel, svg);
+    this.spideyGraph.colourNodes();
+    this.spideyGraph.displayNodes();
+    this.spideyGraph.displayEdges();
+    this.spideyGraph.labelNodes();
+    this.spideyGraph.animate();
     this.ledsSel.attr("fill", function(d) {
       return d.clr;
     });
   };
 
   spideyGeom.prototype.stepFn = function() {
-    var ledData, padLedData, _i, _j, _len, _len1, _ref;
+    var ledData, padLedsData, _i, _j, _len, _len1, _ref;
     this.steps++;
     if (this.steps > 1000) {
       return true;
     }
     _ref = this.padLedsList;
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      padLedData = _ref[_i];
-      for (_j = 0, _len1 = padLedData.length; _j < _len1; _j++) {
-        ledData = padLedData[_j];
+      padLedsData = _ref[_i];
+      for (_j = 0, _len1 = padLedsData.length; _j < _len1; _j++) {
+        ledData = padLedsData[_j];
         ledData.clr = this.spideyAnim.getColour(ledData.pt.x, ledData.pt.y, ledData.padIdx, ledData.ledIdx, this.steps);
       }
     }

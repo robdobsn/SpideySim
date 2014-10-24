@@ -330,6 +330,7 @@ class @SpideyGraph
 						edgeStr3 += ", "
 					console.log edgeStr3
 
+	colourNodes: ->
 		# for edge in @edgeList
 		# 	console.log "edge from " + edge.fromNodeIdx + " to node " + edge.toNodeIdx
 
@@ -341,7 +342,6 @@ class @SpideyGraph
 
 		colrs = @genColours(@nodeList.length)
 		colrIdx = 0
-		console.log "NumNodes = " + @nodeList.length
 		for nodeLeds in @nodeList
 			nodeLeds.colr = colrs[colrIdx++]
 		# @nodeList[0].colr = "#000000"
@@ -349,6 +349,8 @@ class @SpideyGraph
 		# 	colr = colrs[colrIdx++]
 		# 	for nodeLed in nodeLeds.leds
 		# 		@padLedsList[nodeLed.padIdx][nodeLed.ledIdx].clr = colr
+
+	displayNodes: ->
 
 		nodesSvg = @svg.selectAll("g.nodes")
 			.data(@nodeList)
@@ -370,6 +372,7 @@ class @SpideyGraph
 		# for edge in @edgeList
 		# 	console.log "edge from " + edge.fromNode.nodeIdx + ", to " + edge.toNode.nodeIdx
 
+	displayEdges: ->
 		edgesSvg = @svg.selectAll("g.edges")
 			.data(@edgeList)
 			.enter()
@@ -383,6 +386,7 @@ class @SpideyGraph
 		 	.attr("y2", (d) -> return d.toNode.CofG.pt.y )
 		 	.attr("stroke", (d,i) -> return 'black')
 
+	labelNodes: ->
 		nodeLabels = @svg
 			.selectAll(".nodelabels")
 			.data(@nodeList)
@@ -398,6 +402,7 @@ class @SpideyGraph
 			.attr("font-size", "10px")
 			.attr("fill", "#005050")
 
+	animate: ->
 		@animNodeIdx = 34
 		@animEdgeIdx = 0
 		@animEdgeStep = 0
@@ -405,6 +410,7 @@ class @SpideyGraph
 		@steps = 0
 		d3.timer(@stepFn)
 
+	enableMouseMode: ->
 		@svg.on "mousemove", @mousemove
 
 	mousemove: =>
