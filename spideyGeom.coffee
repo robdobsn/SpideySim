@@ -139,6 +139,8 @@ class @spideyGeom
 
 		@spideyGraph.createGraph(@padOutlines, @padLedsList, @ledsSel, svg)
 
+		@showDownloadJsonLink()
+
 		@spideyGraph.colourNodes()
 		# @spideyGraph.displayNodes()
 		@spideyGraph.displayEdges()
@@ -165,3 +167,39 @@ class @spideyGeom
 
 		return false
 
+	getNodeExportInfo: (node) ->
+		rtnData =
+			center: node.CofG
+			nodeDegree: node.nodeDegree
+			name: node.nodeId
+			LEDs: ( { chainIdx: nodeLed.led.chainIdx } for nodeLed in node.leds )
+		return rtnData
+
+	getLinkExportInfo: () ->
+		rtnData = []
+		for node in @spideyGraph.nodeList
+			for edgeTo in node.edgesTo
+				oneLink =
+					source: node.nodeId
+					target: edgeTo.toNodeIdx
+					length: edgeTo.edgeLength
+					edgeId: edgeTo.edgeIdx
+				rtnData.push oneLink
+		return rtnData
+
+	getEdgeExportInfo: () ->
+		# {chainIdx: edgeLed.led.chainIdx, pt: edgeLed.led.pt, padIdx: edgeLed.led.padIdx } for edgeLed in edgeTo.edgeList )
+		return @spideyGraph.edgeList
+
+	getLedsExportInfo: ->
+		return @padLedsList
+
+	showDownloadJsonLink: ->
+		spideyGeomToExport =
+			LEDs: @getLedsExportInfo()
+			# nodes: ( @getNodeExportInfo(node) for node in @spideyGraph.nodeList )
+			# links: @getLinkExportInfo()
+			# edges: @getEdgeExportInfo()
+
+		spideyGeomJson = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(spideyGeomToExport))
+		$('<a href="data:' + spideyGeomJson + '" download="SpideyGeometry.json">Download Spidey JSON</a>').appendTo('#downloadSpideyJson')

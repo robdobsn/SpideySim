@@ -6,16 +6,15 @@
 <script type="text/javascript" src="SpideyAnimation.js"></script>
 <script type="text/javascript" src="SpideyGraph.js"></script>
 <script type="text/javascript">
-function runtest3()
+function runSpidey()
 {
-    var spidey;
-    spidey = new spideyGeom();
-    return spidey.init();
+    window.spidey = new spideyGeom();
+    window.spidey.init();
 };
-
 </script>
 </head>
-<body onload="runtest3();">
+<body onload="runSpidey();">
+<div id="downloadSpideyJson"></div>
 <div id="spideyGeom">
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
