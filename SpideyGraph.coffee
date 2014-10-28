@@ -522,6 +522,7 @@ class @SpideyGraph
 			@animEdgeStep = 0
 			for nodeLed in @nodeList[@animNodeIdx].leds
 				@padLedsList[nodeLed.padIdx][nodeLed.ledIdx].clr = "#000000"
+				@sendLedCmd(nodeLed.led)
 			# check for zero length edge
 			if @nodeList[@animNodeIdx].edgesTo[@animEdgeIdx].edgeList.length == 0
 				@animNodeIdx = @nodeList[@animNodeIdx].edgesTo[@animEdgeIdx].toNodeIdx
@@ -531,6 +532,7 @@ class @SpideyGraph
 			if @animEdgeStep < edgeSteps.length
 				for led in edgeSteps[@animEdgeStep]
 					@padLedsList[led.padIdx][led.ledIdx].clr = "#000000"
+					@sendLedCmd(led.led)
 			@animEdgeStep++
 			if @animEdgeStep >= edgeSteps.length
 				@animNodeIdx = @nodeList[@animNodeIdx].edgesTo[@animEdgeIdx].toNodeIdx
