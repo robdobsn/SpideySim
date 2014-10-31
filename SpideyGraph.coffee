@@ -288,8 +288,10 @@ class @SpideyGraph
 			for edgeTo in node.edgesTo
 				# work down edges of pads common to both nodes
 				edgeSteps = []
+				edgesList = []
 				for nodeLed in node.leds
 					padIdx = nodeLed.padIdx
+					padEdgeLeds = []
 					for toNodeLed in @nodeList[edgeTo.toNodeIdx].leds
 						if padIdx is toNodeLed.padIdx
 							# find the number of leds in the edge
@@ -318,13 +320,18 @@ class @SpideyGraph
 								tLedIdx = (ledBase+(i+1)*ledInc+@padLedsList[padIdx].length)%@padLedsList[padIdx].length
 								edgeSteps[i].push { padIdx: padIdx, ledIdx: tLedIdx, led: @padLedsList[padIdx][tLedIdx]}
 								edgeStr2 += tLedIdx + ","
+								padEdgeLeds.push { ledIdx: @padLedsList[padIdx][tLedIdx].chainIdx }
 
 							if @DEBUG_EDGES
 								console.log "Edge from " + nodeIdx + " to " + edgeTo.toNodeIdx + " alongPad " + padIdx + " numleds= " + numleds + " fromNodeLed " + nodeLed.ledIdx + " toNodeLed " + toNodeLed.ledIdx + " edgeLeds " + edgeStr2
 							if nodeIdx is 39 or nodeIdx is 42
 								console.log "Edge from " + nodeIdx + " to " + edgeTo.toNodeIdx + " alongPad " + padIdx + " numleds= " + numleds + " fromNodeLed " + nodeLed.ledIdx + " toNodeLed " + toNodeLed.ledIdx + " edgeLeds " + edgeStr2
+							edgesList.push
+								padIdx: padIdx
+								leds: padEdgeLeds
 
 				edgeTo.edgeList = edgeSteps
+				edgeTo.edgeLedsList = edgesList
 
 				if @DEBUG_EDGES
 					edgeStr3 = "edgeSteps "

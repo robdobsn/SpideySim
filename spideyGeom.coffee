@@ -60,7 +60,7 @@ class @spideyGeom
 		svg = d3.select("#spideyGeom svg");
 		@padOutlines = svg.selectAll("path");
 
-		pad_centers = @padOutlines[0].map (d, padIdx) ->
+		@pad_centers = @padOutlines[0].map (d, padIdx) ->
 			bbox = d.getBBox()
 			return [bbox.x + bbox.width/2, bbox.y + bbox.height/2, padIdx]
 
@@ -125,7 +125,7 @@ class @spideyGeom
 
 		text = svg
 			.selectAll("text")
-			.data(pad_centers)
+			.data(@pad_centers)
 			.enter()
 			.append("text")
 
@@ -145,7 +145,7 @@ class @spideyGeom
 		# @spideyGraph.displayNodes()
 		@spideyGraph.displayEdges()
 		@spideyGraph.labelNodes()
-		@spideyGraph.animate()
+		# @spideyGraph.animate()
 		# @spideyGraph.enableMouseMove("leds")
 
 		# d3.timer(@stepFn)
@@ -169,10 +169,10 @@ class @spideyGeom
 
 	getNodeExportInfo: (node) ->
 		rtnData =
-			center: node.CofG
+			centre: node.CofG.pt
 			nodeDegree: node.nodeDegree
 			name: node.nodeId
-			LEDs: ( { chainIdx: nodeLed.led.chainIdx } for nodeLed in node.leds )
+			LEDs: ( { ledIdx: nodeLed.led.chainIdx } for nodeLed in node.leds )
 		return rtnData
 
 	getLinkExportInfo: () ->
@@ -183,23 +183,52 @@ class @spideyGeom
 					source: node.nodeId
 					target: edgeTo.toNodeIdx
 					length: edgeTo.edgeLength
-					edgeId: edgeTo.edgeIdx
+					padEdges: edgeTo.edgeLedsList
 				rtnData.push oneLink
 		return rtnData
 
-	getEdgeExportInfo: () ->
-		# {chainIdx: edgeLed.led.chainIdx, pt: edgeLed.led.pt, padIdx: edgeLed.led.padIdx } for edgeLed in edgeTo.edgeList )
-		return @spideyGraph.edgeList
+	flatten_array: (a) ->
+		unless a?
+			return null
+		else if a.length is 0
+			return []
+		else
+			return ( a.reduce (l,r)->l.concat(r) )
 
 	getLedsExportInfo: ->
-		return @padLedsList
+		# leds = ( led for led in pad for pad in @padLedsList)
+		leds = @flatten_array @padLedsList
+		renamedLeds = []
+		for led in leds
+			newLed =
+				centre: led.pt
+				ledIdx: led.chainIdx
+				padIdx: led.padIdx
+			renamedLeds.push newLed
+		renamedLeds.sort (a,b) ->
+			return a.ledIdx - b.ledIdx
+		return renamedLeds
+
+	getPadsExportInfo: ->
+		padsList = []
+		for padCentre in @pad_centers
+			padInfo = 
+				centre: { x: padCentre[0], y: padCentre[1] }
+			padsList.push padInfo
+		for padLeds, padIdx in @padLedsList
+			leds = []
+			for led in padLeds
+				leds.push
+					ledIdx: led.chainIdx
+			padsList[padIdx].LEDs = leds
+		return padsList
 
 	showDownloadJsonLink: ->
 		spideyGeomToExport =
 			LEDs: @getLedsExportInfo()
-			# nodes: ( @getNodeExportInfo(node) for node in @spideyGraph.nodeList )
-			# links: @getLinkExportInfo()
-			# edges: @getEdgeExportInfo()
+			Pads: @getPadsExportInfo()
+			nodes: ( @getNodeExportInfo(node) for node in @spideyGraph.nodeList )
+			links: @getLinkExportInfo()
 
 		spideyGeomJson = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(spideyGeomToExport))
 		$('<a href="data:' + spideyGeomJson + '" download="SpideyGeometry.json">Download Spidey JSON</a>').appendTo('#downloadSpideyJson')

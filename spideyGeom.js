@@ -287,12 +287,12 @@ this.spideyGeom = (function() {
   ];
 
   spideyGeom.prototype.init = function() {
-    var ledCount, padLedsData, pad_centers, svg, text, _i, _j, _len, _len1, _ref, _ref1;
+    var ledCount, padLedsData, svg, text, _i, _j, _len, _len1, _ref, _ref1;
     this.spideyAnim = new SpideyAnimation();
     this.spideyGraph = new SpideyGraph();
     svg = d3.select("#spideyGeom svg");
     this.padOutlines = svg.selectAll("path");
-    pad_centers = this.padOutlines[0].map(function(d, padIdx) {
+    this.pad_centers = this.padOutlines[0].map(function(d, padIdx) {
       var bbox;
       bbox = d.getBBox();
       return [bbox.x + bbox.width / 2, bbox.y + bbox.height / 2, padIdx];
@@ -363,7 +363,7 @@ this.spideyGeom = (function() {
     }).attr("r", this.ledUISize).attr("fill", function(d, i) {
       return d.clr;
     });
-    text = svg.selectAll("text").data(pad_centers).enter().append("text");
+    text = svg.selectAll("text").data(this.pad_centers).enter().append("text");
     text.attr("x", function(d) {
       return d[0] - 10;
     }).attr("y", function(d) {
@@ -376,7 +376,6 @@ this.spideyGeom = (function() {
     this.spideyGraph.colourNodes();
     this.spideyGraph.displayEdges();
     this.spideyGraph.labelNodes();
-    this.spideyGraph.animate();
     this.ledsSel.attr("fill", function(d) {
       return d.clr;
     });
@@ -405,7 +404,7 @@ this.spideyGeom = (function() {
   spideyGeom.prototype.getNodeExportInfo = function(node) {
     var nodeLed, rtnData;
     rtnData = {
-      center: node.CofG,
+      centre: node.CofG.pt,
       nodeDegree: node.nodeDegree,
       name: node.nodeId,
       LEDs: (function() {
@@ -415,7 +414,7 @@ this.spideyGeom = (function() {
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           nodeLed = _ref[_i];
           _results.push({
-            chainIdx: nodeLed.led.chainIdx
+            ledIdx: nodeLed.led.chainIdx
           });
         }
         return _results;
@@ -437,7 +436,7 @@ this.spideyGeom = (function() {
           source: node.nodeId,
           target: edgeTo.toNodeIdx,
           length: edgeTo.edgeLength,
-          edgeId: edgeTo.edgeIdx
+          padEdges: edgeTo.edgeLedsList
         };
         rtnData.push(oneLink);
       }
@@ -445,18 +444,82 @@ this.spideyGeom = (function() {
     return rtnData;
   };
 
-  spideyGeom.prototype.getEdgeExportInfo = function() {
-    return this.spideyGraph.edgeList;
+  spideyGeom.prototype.flatten_array = function(a) {
+    if (a == null) {
+      return null;
+    } else if (a.length === 0) {
+      return [];
+    } else {
+      return a.reduce(function(l, r) {
+        return l.concat(r);
+      });
+    }
   };
 
   spideyGeom.prototype.getLedsExportInfo = function() {
-    return this.padLedsList;
+    var led, leds, newLed, renamedLeds, _i, _len;
+    leds = this.flatten_array(this.padLedsList);
+    renamedLeds = [];
+    for (_i = 0, _len = leds.length; _i < _len; _i++) {
+      led = leds[_i];
+      newLed = {
+        centre: led.pt,
+        ledIdx: led.chainIdx,
+        padIdx: led.padIdx
+      };
+      renamedLeds.push(newLed);
+    }
+    renamedLeds.sort(function(a, b) {
+      return a.ledIdx - b.ledIdx;
+    });
+    return renamedLeds;
+  };
+
+  spideyGeom.prototype.getPadsExportInfo = function() {
+    var led, leds, padCentre, padIdx, padInfo, padLeds, padsList, _i, _j, _k, _len, _len1, _len2, _ref, _ref1;
+    padsList = [];
+    _ref = this.pad_centers;
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      padCentre = _ref[_i];
+      padInfo = {
+        centre: {
+          x: padCentre[0],
+          y: padCentre[1]
+        }
+      };
+      padsList.push(padInfo);
+    }
+    _ref1 = this.padLedsList;
+    for (padIdx = _j = 0, _len1 = _ref1.length; _j < _len1; padIdx = ++_j) {
+      padLeds = _ref1[padIdx];
+      leds = [];
+      for (_k = 0, _len2 = padLeds.length; _k < _len2; _k++) {
+        led = padLeds[_k];
+        leds.push({
+          ledIdx: led.chainIdx
+        });
+      }
+      padsList[padIdx].LEDs = leds;
+    }
+    return padsList;
   };
 
   spideyGeom.prototype.showDownloadJsonLink = function() {
-    var spideyGeomJson, spideyGeomToExport;
+    var node, spideyGeomJson, spideyGeomToExport;
     spideyGeomToExport = {
-      LEDs: this.getLedsExportInfo()
+      LEDs: this.getLedsExportInfo(),
+      Pads: this.getPadsExportInfo(),
+      nodes: (function() {
+        var _i, _len, _ref, _results;
+        _ref = this.spideyGraph.nodeList;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          node = _ref[_i];
+          _results.push(this.getNodeExportInfo(node));
+        }
+        return _results;
+      }).call(this),
+      links: this.getLinkExportInfo()
     };
     spideyGeomJson = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(spideyGeomToExport));
     return $('<a href="data:' + spideyGeomJson + '" download="SpideyGeometry.json">Download Spidey JSON</a>').appendTo('#downloadSpideyJson');
