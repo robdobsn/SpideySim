@@ -5,6 +5,7 @@
 <script type="text/javascript" src="spideyGeom.js"></script>
 <script type="text/javascript" src="SpideyAnimation.js"></script>
 <script type="text/javascript" src="SpideyGraph.js"></script>
+<script type="text/javascript" src="SpideyPacMan.js"></script>
 <script type="text/javascript">
 function runSpidey()
 {
@@ -14,7 +15,25 @@ function runSpidey()
 </script>
 </head>
 <body onload="runSpidey();">
-<div id="downloadSpideyJson"></div>
+<span id="downloadSpideyJson"></span><span>    </span>
+<span id="downloadSpideyMbed"></span>
+<span>    </span>
+<span id="DebugInfo3"></span>
+<div></div>
+<button id="startSpidey">Start</button>
+<button id="pauseSpidey">Pause</button>
+<span id="DebugInfo">N 1, L 1, S 1</span>
+<span>    </span>
+<span id="DebugInfo2">P 1, PL 1, CH 1</span>
+<div></div>
+<button id="stepSpidey">StepForward</button>
+<button id="steprightSpidey">StepRight</button>
+<button id="stepleftSpidey">StepLeft</button>
+<button id="stepbackSpidey">StepBack</button>
+<div id="moveup" style="position: absolute; top: 100px; left: 450px; width: 75px; height: 20px; background-color: blue; color: white; ">FORWARD</div>
+<div id="movedown" style="position: absolute; top: 100px; left: 550px; width: 75px; height: 20px; background-color: green; color: white; ">BACK</div>
+<div id="moveleft" style="position: absolute; top: 150px; left: 450px; width: 75px; height: 20px; background-color: brown; color: white; ">LEFT</div>
+<div id="moveright" style="position: absolute; top: 150px; left: 550px; width: 75px; height: 20px; background-color: red; color: white; ">RIGHT</div>
 <div id="spideyGeom">
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"

@@ -37,16 +37,16 @@ class @spideyGeom
 		{ chainIdx: 466, startPos: 0.01, endPos: 0.64, hiddenLeds: 0, anticlockwise: true }, #29
 		{ chainIdx: 1665, startPos: 0.02, endPos: 0.55, hiddenLeds: 0, anticlockwise: true }, #30
 		{ chainIdx: 1498, startPos: 0.37, endPos: 1.00, hiddenLeds: 0, anticlockwise: false }, #31
-		{ chainIdx: 1448, startPos: 0.35, endPos: 0.96, hiddenLeds: 0, anticlockwise: false }, #32
+		{ chainIdx: 1448, startPos: 0.35, endPos: 0.98, hiddenLeds: 0, anticlockwise: false }, #32
 		{ chainIdx: 732, startPos: 0, endPos: -0.98, hiddenLeds: 34, anticlockwise: true }, #33
-		{ chainIdx: 1346, startPos: 0.37, endPos: 0.98, hiddenLeds: 0, anticlockwise: false }, #34
+		{ chainIdx: 1346, startPos: 0.37, endPos: 1.00, hiddenLeds: 0, anticlockwise: false }, #34
 		{ chainIdx: 1220, startPos: 0.01, endPos: 0.72, hiddenLeds: 0, anticlockwise: true }, #35
 		{ chainIdx: 1376, startPos: 0, endPos: -1, hiddenLeds: -27, anticlockwise: true }, #36
 		{ chainIdx: 56, startPos: 0, endPos: -1, hiddenLeds: 30, anticlockwise: true }, #37
 		{ chainIdx: 516, startPos: 0.01, endPos: 0.55, hiddenLeds: 0, anticlockwise: true }, #38
 		{ chainIdx: 836, startPos: 0.02, endPos: 0.68, hiddenLeds: 0, anticlockwise: true }, #39
 		{ chainIdx: 1040, startPos: 0, endPos: -1, hiddenLeds: 39, anticlockwise: true }, #40
-		{ chainIdx: 1000, startPos: 0.01, endPos: 0.75, hiddenLeds: 0, anticlockwise: true }, #41
+		{ chainIdx: 1000, startPos: 0.01, endPos: 0.73, hiddenLeds: 0, anticlockwise: true }, #41
 		{ chainIdx: 934, startPos: 0.03, endPos: 0.78, hiddenLeds: 0, anticlockwise: true }, #42
 		{ chainIdx: 974, startPos: 0.2, endPos: 0.69, hiddenLeds: 0, anticlockwise: true }, #43
 		{ chainIdx: 490, startPos: 0.01, endPos: 0.67, hiddenLeds: 0, anticlockwise: true }, #44
@@ -56,6 +56,7 @@ class @spideyGeom
 
 		@spideyAnim = new SpideyAnimation()
 		@spideyGraph = new SpideyGraph()
+		@spideyPacMan = new SpideyPacMan(this)
 
 		svg = d3.select("#spideyGeom svg");
 		@padOutlines = svg.selectAll("path");
@@ -113,8 +114,6 @@ class @spideyGeom
 
 		@ledsSel = @padLeds.selectAll(".led")
 			.data( (d,i) -> return d )
-
-		@ledsSel
 			.enter()
 			.append("circle")
 		 	.attr("class", "led")
@@ -122,6 +121,7 @@ class @spideyGeom
 		 	.attr("cy", (d) -> return d.pt.y )
 		 	.attr("r", @ledUISize)
 		 	.attr("fill", (d,i) -> return d.clr)
+		 	.text((d,i) -> return d.chainIdx + " ")
 
 		text = svg
 			.selectAll("text")
@@ -149,8 +149,140 @@ class @spideyGeom
 		# @spideyGraph.enableMouseMove("leds")
 
 		# d3.timer(@stepFn)
+		#d3.timer(@spideyPacMan.step())
+		@spideyTimer = setInterval(@pacManStep, 200)
+		clearInterval(@spideyTimer)
+
+		$("#startSpidey").click =>
+			clearInterval(@spideyTimer)
+			@spideyTimer = setInterval(@pacManStep, 200)
+			@showDebug()
+		$("#pauseSpidey").click =>
+			clearInterval(@spideyTimer)
+		$("#steprightSpidey").click =>
+			@spideyPacMan.mouseover('right')
+			@pacManStep()
+		$("#stepleftSpidey").click =>
+			@spideyPacMan.mouseover('left')
+			@pacManStep()
+		$("#stepSpidey").click =>
+			@spideyPacMan.mouseover('forward')
+			@pacManStep()
+		$("#stepbackSpidey").click =>
+			@spideyPacMan.mouseover('back')
+			@pacManStep()
+		$("#moveup").mousemove =>
+			@spideyPacMan.mouseover('forward')
+		$("#movedown").mousemove =>
+			@spideyPacMan.mouseover('back')
+		$("#moveleft").mousemove =>
+			@spideyPacMan.mouseover('left')
+		$("#moveright").mousemove =>
+			@spideyPacMan.mouseover('right')
+		$(".led").mousemove (ev) =>
+			ledIdx = parseInt(ev.currentTarget.textContent)
+			ledInfo = @ledsChainList[ledIdx]
+			$("#DebugInfo3").text(ev.currentTarget.textContent + " P" + ledInfo.padIdx + " PL" + ledInfo.ledIdx)
+
 		@ledsSel.attr("fill", (d) -> return d.clr)
 
+		ledsChain = @flatten_array @padLedsList
+		@ledsChainList = []
+		for led in ledsChain
+			@ledsChainList[led.chainIdx] = led
+
+		return
+
+	pacManStep: () =>		
+		@spideyPacMan.step()
+		@showDebug()
+
+	showDebug: () ->
+		dbg = @spideyPacMan.getDebugInfo()
+		$('#DebugInfo').text(dbg)
+		return
+
+	d2h: (d) ->
+		return d.toString(16)
+
+	h2d: (h) ->
+		return parseInt(h,16)
+
+	zeropad: (n, width, z) ->
+		z = z || '0'
+		n = n + ''
+		return if n.length >= width then n else new Array(width - n.length + 1).join(z) + n
+
+	execSpideyCmd: (cmdParams) ->
+		console.log "Sending " + cmdParams 
+		$.ajax cmdParams,
+			type: "GET"
+			dataType: "text"
+			success: (data, textStatus, jqXHR) =>
+				return
+			error: (jqXHR, textStatus, errorThrown) =>
+				console.error ("Direct exec command failed: " + textStatus + " " + errorThrown + " COMMAND=" + cmdParams)
+		return
+
+	sendLedCmd: (ledChainIdx, ledclr) ->
+		clrStr = if ledclr is "white" then "000000" else "800000"
+		if ledclr isnt "white"
+			@ipCmdBuf += "000802" + @zeropad(@d2h(ledChainIdx), 4) + "0001" + clrStr
+		return
+
+	setNodeColour: (nodeIdx, disp, colour) ->
+		node = @spideyGraph.nodeList[nodeIdx]
+		dbg = ""
+		for nodeLed in node.leds
+			if disp
+				nodeLed.led.clr = colour
+			else
+				nodeLed.led.clr = "white"
+			@sendLedCmd(nodeLed.led.chainIdx, nodeLed.led.clr)
+			dbg += "P" + nodeLed.padIdx + " X" + nodeLed.ledIdx + " C" + nodeLed.led.chainIdx + ", "
+		$('#DebugInfo2').text(dbg)
+		return
+
+	setLinkColour: (nodeIdx, linkIdx, linkStep, disp, colour) ->
+		node = @spideyGraph.nodeList[nodeIdx]
+		link = node.edgesTo[linkIdx]
+		dbg = ""
+		if linkStep < link.edgeList.length
+			for edgeLeds in link.edgeList[linkStep]
+				led = edgeLeds.led
+				dbg += "P" + led.padIdx + " X" + led.ledIdx + " C" + led.chainIdx + ", "
+				if disp
+					led.clr = colour
+				else
+					led.clr = "white"
+				@sendLedCmd(led.chainIdx, led.clr)
+		else
+			dbg = "ListLenErr"
+		$('#DebugInfo2').text(dbg)
+		return
+
+	getNodeXY: (nodeIdx) ->
+		return @spideyGraph.nodeList[nodeIdx].CofG.pt
+
+	getLinkLedXY: (nodeIdx, linkIdx, linkStep) ->
+		return @spideyGraph.nodeList[nodeIdx].edgesTo[linkIdx].edgeList[linkStep][0].led.pt
+
+	getNumLinks: (nodeIdx) ->
+		return @spideyGraph.nodeList[nodeIdx].edgesTo.length
+
+	getLinkLength: (nodeIdx, linkIdx) ->
+		return @spideyGraph.nodeList[nodeIdx].edgesTo[linkIdx].edgeList.length
+
+	getLinkTarget: (nodeIdx, linkIdx) ->
+		return @spideyGraph.nodeList[nodeIdx].edgesTo[linkIdx].toNodeIdx
+
+	preShowAll: () ->
+		@ipCmdBuf = ""
+
+	showAll: () ->
+		@ledsSel.attr("fill", (d) -> return d.clr)
+		@ipCmdBuf = "0000000101" + @ipCmdBuf + "00"
+		@execSpideyCmd("http://macallan:5078/rawcmd/" + @ipCmdBuf)
 		return
 
 	stepFn: =>
@@ -169,20 +301,32 @@ class @spideyGeom
 
 	getNodeExportInfo: (node) ->
 		rtnData =
-			centre: node.CofG.pt
+			x: node.CofG.pt.x
+			y: node.CofG.pt.y
 			nodeDegree: node.nodeDegree
 			name: node.nodeId
-			LEDs: ( { ledIdx: nodeLed.led.chainIdx } for nodeLed in node.leds )
+			ledIdxs: ( nodeLed.led.chainIdx for nodeLed in node.leds )
+			linkIdxs: ( edgeTo.linkListIdx for edgeTo in node.edgesTo )
 		return rtnData
+
+	angle: (x1, y1, x2, y2) ->
+		return Math.atan2(y2-y1, x2-x1) * 180 / Math.PI
 
 	getLinkExportInfo: () ->
 		rtnData = []
 		for node in @spideyGraph.nodeList
 			for edgeTo in node.edgesTo
+				edgeTo.linkListIdx = rtnData.length
+				toNode = @spideyGraph.nodeList[edgeTo.toNodeIdx]
 				oneLink =
+					linkIdx: rtnData.length
 					source: node.nodeId
+					xSource: node.CofG.pt.x
+					ySource: node.CofG.pt.y
 					target: edgeTo.toNodeIdx
-					length: edgeTo.edgeLength
+					xTarget: toNode.CofG.pt.x
+					yTarget: toNode.CofG.pt.y
+					linkAngle: @angle(node.CofG.pt.x, node.CofG.pt.y, toNode.CofG.pt.x, toNode.CofG.pt.y)
 					padEdges: edgeTo.edgeLedsList
 				rtnData.push oneLink
 		return rtnData
@@ -198,37 +342,228 @@ class @spideyGeom
 	getLedsExportInfo: ->
 		# leds = ( led for led in pad for pad in @padLedsList)
 		leds = @flatten_array @padLedsList
-		renamedLeds = []
+		finalLeds = []
 		for led in leds
 			newLed =
-				centre: led.pt
+				x: led.pt.x
+				y: led.pt.y
 				ledIdx: led.chainIdx
 				padIdx: led.padIdx
-			renamedLeds.push newLed
-		renamedLeds.sort (a,b) ->
-			return a.ledIdx - b.ledIdx
-		return renamedLeds
+			finalLeds[led.chainIdx] = newLed
+		for led, ledIdx in finalLeds
+			if not led?
+				finalLeds[ledIdx] =
+					x: 0
+					y: 0
+					ledIdx: -1
+					padIdx: -1
+		return finalLeds
 
 	getPadsExportInfo: ->
 		padsList = []
 		for padCentre in @pad_centers
 			padInfo = 
-				centre: { x: padCentre[0], y: padCentre[1] }
+				x: padCentre[0]
+				y: padCentre[1]
 			padsList.push padInfo
 		for padLeds, padIdx in @padLedsList
 			leds = []
 			for led in padLeds
-				leds.push
-					ledIdx: led.chainIdx
-			padsList[padIdx].LEDs = leds
+				leds.push led.chainIdx
+			padsList[padIdx].ledIdxs = leds
+			padsList[padIdx].padIdx = padIdx
 		return padsList
 
-	showDownloadJsonLink: ->
-		spideyGeomToExport =
-			LEDs: @getLedsExportInfo()
-			Pads: @getPadsExportInfo()
-			nodes: ( @getNodeExportInfo(node) for node in @spideyGraph.nodeList )
-			links: @getLinkExportInfo()
+	convLedListForPad: (ledList) ->
+		if ledList.length is 0
+			return "{ -1, -1 },"
+		ledList.sort (a,b) ->
+			return a-b
+		return "{ #{ledList[0]}, #{ledList[ledList.length-1]} },"
 
-		spideyGeomJson = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(spideyGeomToExport))
+	convertPadsToMbedHeader: (spideyGeomToExport) ->
+		outText = ""
+		outLine = """
+			// Spidey pads
+
+			struct SpideyPadInfo
+			{
+				int padLeds[2];
+			};
+
+			static const SpideyPadInfo _spideyPads[] =
+			{
+
+		"""
+		for pad in spideyGeomToExport.pads
+			outLine += "\t" + @convLedListForPad(pad.ledIdxs) + "\n"
+		outLine += """
+			};
+
+		"""
+		outText += outLine
+		return outText
+
+	convLedListToMbedSeq: (ledList) ->
+		edgeLen = 0
+		if not ledList? or ledList.ledIdxs.length is 0
+			return [ edgeLen, "{ -1, -1 }" ]
+		lastLed = -10
+		seqLen = 1
+		ledSeqText = "{ "
+		for led, ledIdx in ledList.ledIdxs
+			if ledIdx is 0
+				ledSeqText += "#{led}, "
+			else if (led+1 isnt lastLed) and (led-1 isnt lastLed)
+				ledSeqText += "#{lastLed}, #{led}, "
+				seqLen += 1
+			if ledIdx is ledList.ledIdxs.length-1
+				ledSeqText += "#{led} "
+			lastLed = led
+		ledSeqText += " }"
+		if seqLen > 2
+			console.log "Seq Length > 2 ==== " + seqLen
+		return [ ledList.ledIdxs.length, ledSeqText ]
+
+	convNodeToMbedSeq: (node, spideyGeomToExport) ->
+		# Links
+		outText = ""
+		links = (link for link in spideyGeomToExport.links when link.source is node.name)
+		linkHIds = []
+		for link, linkIdx in links
+			linkHId = "__spideyLink_#{link.source}_#{link.target}"
+			linkHIds.push(linkHId)
+			if link.padEdges.length isnt 2
+				console.log "Link PadEdges != 2 === " + link.padEdges.length + " for link from " + link.source + " to " + link.target
+			ledListA = @convLedListToMbedSeq link.padEdges[0]
+			ledListB = @convLedListToMbedSeq link.padEdges[1]
+			outText += """
+				static const SpideyLinkInfo #{linkHId} =
+				{
+					#{link.source},
+					#{link.target},
+					#{ledListA[0]},
+					#{ledListA[1]},
+					#{ledListB[0]},
+					#{ledListB[1]}
+				};
+
+			"""
+
+		# Links for each node
+		nodeListHeaderText = """
+			\t{
+				\t#{node.ledIdxs.length},
+				\t{
+		"""
+		for nodeLed in node.ledIdxs
+			nodeListHeaderText += " " + nodeLed + ", "
+		nodeListHeaderText += """
+				},
+				\t\t#{linkHIds.length},
+				\t\t{
+		"""
+
+		for linkHId in linkHIds
+			nodeListHeaderText += " &" + linkHId + ", "
+		nodeListHeaderText += """
+				}
+			\t},
+
+		"""
+		return [ nodeListHeaderText, outText, linkHIds ]
+
+	convertNodesToMbedHeader: (spideyGeomToExport) ->
+		outText = ""
+		outLine = """
+
+			// Spidey Node Information Elements
+
+			const int MAX_SPIDEY_NODE_LEDS = 4;
+			const int MAX_SPIDEY_NODE_LINKS = 6;
+			const int MAX_SPIDEY_LINK_ELS = 4;
+
+			struct SpideyLinkInfo
+			{
+				int fromNode;
+			    int toNode;
+			    int edgeLengthA;
+			    int edgeLedsA[MAX_SPIDEY_LINK_ELS];
+			    int edgeLengthB;
+			    int edgeLedsB[MAX_SPIDEY_LINK_ELS];
+			};
+
+			struct SpideyNodeInfo
+			{
+				int numNodeLeds;
+			    int nodeLeds[MAX_SPIDEY_NODE_LEDS];
+			    int numLinks;
+			    const SpideyLinkInfo* nodeLinks[MAX_SPIDEY_NODE_LINKS];
+			};
+
+
+		"""
+
+		# The links
+		nodeListHeaderText = []
+		linkHIdsList = []
+		for node in spideyGeomToExport.nodes
+			nodeTexts = @convNodeToMbedSeq(node, spideyGeomToExport)
+			nodeListHeaderText.push nodeTexts[0] + "\n"
+			outLine += nodeTexts[1] + "\n"
+			for linkHId in nodeTexts[2]
+				linkHIdsList.push(linkHId)
+
+		# The list of nodes
+		outLine += """
+
+			// List of Spidey Wall nodes
+
+			static const SpideyNodeInfo _spideyNodes[] = 
+			{
+
+		"""
+		for nodeLine in nodeListHeaderText
+			outLine += nodeLine
+		outLine += """
+			};
+
+		"""
+		outText += outLine
+
+		# List of links
+		outLine = """
+			
+			const static SpideyLinkInfo* _spideyLinks[] =
+			{
+
+		"""
+		for linkHid in linkHIdsList
+			outLine += "\t&" + linkHid + ",\n"
+		outLine += "};"
+		outText += outLine
+
+		return outText
+
+	convertToMbedHeader: (spideyGeomToExport) ->
+		outText = """
+			// Header file generated by SpideySim HTML
+			// Rob Dobson, 2015
+
+
+		"""
+		outText += @convertPadsToMbedHeader(spideyGeomToExport)
+		outText += @convertNodesToMbedHeader(spideyGeomToExport)
+		return outText
+
+	showDownloadJsonLink: ->
+		@spideyGeomFinal =
+			leds: @getLedsExportInfo()
+			pads: @getPadsExportInfo()
+			links: @getLinkExportInfo()
+			nodes: ( @getNodeExportInfo(node) for node in @spideyGraph.nodeList )
+
+		spideyGeomJson = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(@spideyGeomFinal, (key,val) -> return if val.toFixed then Number(val.toFixed(2)) else val ))
 		$('<a href="data:' + spideyGeomJson + '" download="SpideyGeometry.json">Download Spidey JSON</a>').appendTo('#downloadSpideyJson')
+		spideyGeomMbed = "text/text;charset=utf-8," + encodeURIComponent(@convertToMbedHeader(@spideyGeomFinal))
+		$('<a href="data:' + spideyGeomMbed + '" download="SpideyGeometry.h">Download Spidey MBED</a>').appendTo('#downloadSpideyMbed')

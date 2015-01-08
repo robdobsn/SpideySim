@@ -10,6 +10,7 @@ class @SpideyGraph
 	maxDistForNodeMerge: 10
 	minDistForEndNode: 20
 	maxDistForFirstAndLastLedsOnCircularPad: 30
+	minDistBetweenNodes: 12
 
 	genColours: (numColours) ->
 		# assumes hue [0, 360), saturation [0, 100), lightness [0, 100)
@@ -97,7 +98,13 @@ class @SpideyGraph
 				else
 					# Check if it's an edge node
 					if ledIdx is 0 or ledIdx is @padLedsList[padIdx].length-1
-						if ledAdjList.length isnt 0
+						otherPadLedIsEndOfChainToo = false
+						for otherLed in ledAdjList
+							if not (otherLed.padIdx is padIdx and otherLed.ledIdx is ledIdx)
+								if otherLed.ledIdx is 0 or otherLed.ledIdx is @padLedsList[otherLed.padIdx].length-1
+									otherPadLedIsEndOfChainToo = true
+									break
+						if otherPadLedIsEndOfChainToo and (ledAdjList.length isnt 0)
 						 	edgeNodeLedsList.push ledAdjList
 
 		# Rationalise multi-node list
@@ -138,6 +145,22 @@ class @SpideyGraph
 
 		# Comnbine the node lists
 		@nodeList = rationalisedMultiNodeLedsList.concat rationalisedEdgeNodeLedsList
+
+		# Combine close nodes
+		nodesMerged = true
+		while nodesMerged
+			nodesMerged = false
+			for nodeIdx in [0...@nodeList.length-1]
+				for otherNodeIdx in [nodeIdx+1...@nodeList.length]
+					n1 = @nodeList[nodeIdx]
+					n2 = @nodeList[otherNodeIdx]
+					if @dist(n1.CofG, n2.CofG) < @minDistBetweenNodes
+						nodesMerged = true
+						n1.leds.push.apply(n1.leds, n2.leds)
+						@nodeList.splice(otherNodeIdx, 1)
+						break
+				if nodesMerged
+					break
 
 		# Remove duplicated leds from the same pad from nodes
 		for nodeInfo in @nodeList
@@ -299,13 +322,16 @@ class @SpideyGraph
 							ledInc = if toNodeLed.ledIdx > nodeLed.ledIdx then 1 else -1
 							ledBase = nodeLed.ledIdx
 							if node.nodeDegree >= 2 and @nodeList[edgeTo.toNodeIdx].nodeDegree >= 2
+								led1 = @padLedsList[padIdx][0]
+								led2 = @padLedsList[padIdx][@padLedsList[padIdx].length-1]
 								wrapRoundNumLeds = @padLedsList[padIdx].length - numleds
 								if numleds > wrapRoundNumLeds
-									numleds = wrapRoundNumLeds
-									ledInc = -ledInc
-							if numleds < edgeTo.edgeLength - 1 and numleds > edgeTo.edgeLength - 10
-								numleds = Math.abs(toNodeLed.ledIdx - nodeLed.ledIdx)
-								ledInc = -ledInc
+									if @dist(led1, led2) < 20
+										numleds = wrapRoundNumLeds
+										ledInc = -ledInc
+							# if numleds < edgeTo.edgeLength - 1 and numleds > edgeTo.edgeLength - 10
+							# 	numleds = Math.abs(toNodeLed.ledIdx - nodeLed.ledIdx)
+							# 	ledInc = -ledInc
 
 							if @DEBUG_EDGES
 								console.log "edgeLengthDiscrepancy from " + nodeIdx + " to " + edgeTo.toNodeIdx + " expected " + edgeTo.edgeLength + " is " + numleds
@@ -320,15 +346,15 @@ class @SpideyGraph
 								tLedIdx = (ledBase+(i+1)*ledInc+@padLedsList[padIdx].length)%@padLedsList[padIdx].length
 								edgeSteps[i].push { padIdx: padIdx, ledIdx: tLedIdx, led: @padLedsList[padIdx][tLedIdx]}
 								edgeStr2 += tLedIdx + ","
-								padEdgeLeds.push { ledIdx: @padLedsList[padIdx][tLedIdx].chainIdx }
+								padEdgeLeds.push @padLedsList[padIdx][tLedIdx].chainIdx
 
 							if @DEBUG_EDGES
 								console.log "Edge from " + nodeIdx + " to " + edgeTo.toNodeIdx + " alongPad " + padIdx + " numleds= " + numleds + " fromNodeLed " + nodeLed.ledIdx + " toNodeLed " + toNodeLed.ledIdx + " edgeLeds " + edgeStr2
-							if nodeIdx is 39 or nodeIdx is 42
+							if nodeIdx is 29
 								console.log "Edge from " + nodeIdx + " to " + edgeTo.toNodeIdx + " alongPad " + padIdx + " numleds= " + numleds + " fromNodeLed " + nodeLed.ledIdx + " toNodeLed " + toNodeLed.ledIdx + " edgeLeds " + edgeStr2
 							edgesList.push
 								padIdx: padIdx
-								leds: padEdgeLeds
+								ledIdxs: padEdgeLeds
 
 				edgeTo.edgeList = edgeSteps
 				edgeTo.edgeLedsList = edgesList
@@ -395,7 +421,14 @@ class @SpideyGraph
 		 	.attr("y1", (d) -> return d.fromNode.CofG.pt.y )
 		 	.attr("x2", (d) -> return d.toNode.CofG.pt.x )
 		 	.attr("y2", (d) -> return d.toNode.CofG.pt.y )
-		 	.attr("stroke", (d,i) -> return 'black')
+		 	.attr("stroke", (d,i) -> 
+		 		if d.toNode.nodeId is 20
+		 			return 'red'
+		 		if d.toNode.nodeId is 59
+		 			return 'green'
+		 		if d.toNode.nodeId is 42
+		 			return 'blue'
+		 		return 'black')
 
 	labelNodes: ->
 		nodeLabels = @svg
